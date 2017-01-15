@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/activity_light_image_picker"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  >
+
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    >
+    <android.support.v7.widget.RecyclerView
+      android:id="@+id/light_image_picker_rv_photo_list"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:background="#000"
+      />
+
+    <View
+      android:id="@+id/light_image_picker_view_bucket_list_bg"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:background="#66000000"
+      android:visibility="gone"
+      />
+
+    <android.support.v7.widget.RecyclerView
+      android:id="@+id/light_image_picker_rv_bucket_list"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_alignParentBottom="true"
+      android:background="@color/light_image_picker_light_gray"
+      android:visibility="gone"
+      />
+  </RelativeLayout>
+
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:background="@color/light_image_picker_window_background"
+    >
+    <TextView
+      android:id="@+id/light_image_picker_tv_select_bucket"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:gravity="center_vertical"
+      android:background="@null"
+      android:paddingLeft="12dp"
+      android:textSize="16dp"
+      android:textColor="@color/light_image_picker_button_text_selector"
+      />
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:text="\u25e2"
+      android:layout_toRightOf="@id/light_image_picker_tv_select_bucket"
+      android:gravity="center_vertical"
+      android:textSize="10dp"
+      android:layout_marginTop="3dp"
+      android:layout_marginLeft="2dp"
+      />
+
+    <View
+      android:layout_width="match_parent"
+      android:layout_height="1px"
+      android:background="@color/light_image_picker_divider"
+      />
+
+    <TextView
+      android:id="@+id/light_image_picker_tv_preview"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:text="预览"
+      android:background="@null"
+      android:paddingLeft="12dp"
+      android:paddingRight="12dp"
+      android:textSize="16dp"
+      android:gravity="center_vertical"
+      android:textColor="@color/light_image_picker_button_text_selector"
+      android:enabled="false"
+      android:layout_alignParentRight="true"
+      />
+  </RelativeLayout>
+</LinearLayout>

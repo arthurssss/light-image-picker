@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="@dimen/light_image_picker_bucket_item_height"
+  android:paddingLeft="8dp"
+  android:paddingRight="8dp"
+  android:background="@drawable/light_image_picker_item_selector"
+  >
+
+  <ImageView
+    android:id="@+id/light_image_picker_iv_bucket_icon"
+    android:layout_width="54dp"
+    android:layout_height="54dp"
+    android:src="@drawable/light_image_picker_placeholder"
+    android:layout_centerVertical="true"
+    android:background="#000"
+    />
+
+  <TextView
+    android:id="@+id/light_image_picker_tv_bucket_name"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="全部图片"
+    android:layout_marginTop="16dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="40dp"
+    android:layout_toRightOf="@id/light_image_picker_iv_bucket_icon"
+    android:textColor="@color/light_image_picker_primary_text"
+    />
+
+  <TextView
+    android:id="@+id/light_image_picker_tv_bucket_desc"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="12张"
+    android:layout_marginTop="8dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="40dp"
+    android:textSize="12dp"
+    android:layout_toRightOf="@id/light_image_picker_iv_bucket_icon"
+    android:layout_below="@id/light_image_picker_tv_bucket_name"
+    android:textColor="@color/light_image_picker_secondary_text"
+    />
+
+  <RadioButton
+    android:id="@+id/light_image_picker_rb_bucket_checked"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_centerVertical="true"
+    />
+
+</RelativeLayout>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <color name="light_image_picker_window_background">#fff</color>
+
+  <color name="light_image_picker_primary">#009688</color>
+  <color name="light_image_picker_primary_dark">#00796B</color>
+  <color name="light_image_picker_primary_light">#B2DFDB</color>
+  <color name="light_image_picker_accent">#009688</color>
+  <color name="light_image_picker_primary_text">#212121</color>
+  <color name="light_image_picker_secondary_text">#757575</color>
+  <color name="light_image_picker_icons">#FFFFFF</color>
+  <color name="light_image_picker_divider">#BDBDBD</color>
+
+  <color name="light_image_picker_light_gray">#BDBDBD</color>
+  <color name="light_image_picker_highlighted">#EEEEEE</color>
+
+</resources>
