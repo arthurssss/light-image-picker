@@ -1,12 +1,18 @@
 <resources>
 
-  <style name="Theme.LightImagePicker.Button" parent="Base.Widget.AppCompat.Button">
+  <style name="Theme.LightImagePicker.Button" parent="Widget.AppCompat.Button.Small">
+    <item name="android:minWidth">0dp</item>
+    <item name="android:minHeight">0dp</item>
+    <item name="android:paddingLeft">12dp</item>
+    <item name="android:paddingRight">12dp</item>
+    <item name="android:paddingTop">8dp</item>
+    <item name="android:paddingBottom">8dp</item>
+    <item name="android:textColor">@color/light_image_picker_button_text_inverse_selector</item>
     <item name="android:textAllCaps">false</item>
   </style>
 
-
   <!-- Base application theme. -->
-  <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+  <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
     <!-- Customize your theme here. -->
     <item name="colorPrimary">@color/light_image_picker_primary</item>
     <item name="colorPrimaryDark">@color/light_image_picker_primary_dark</item>

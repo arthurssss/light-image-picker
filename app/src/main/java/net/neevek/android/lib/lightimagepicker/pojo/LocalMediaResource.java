@@ -19,6 +19,17 @@ public class LocalMediaResource {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        return obj instanceof LocalMediaResource &&
+                this.path.equals(((LocalMediaResource)obj).path);
+    }
+
+    @Override
+    public int hashCode() {
+        return path.hashCode();
+    }
+
+    @Override
     public String toString() {
         return "[" + mediaType + ", " + size + ", " + datetimeAdded + ", " + path + "]";
     }

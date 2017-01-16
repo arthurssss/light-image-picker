@@ -2,10 +2,10 @@
 <resources>
   <color name="light_image_picker_window_background">#fff</color>
 
-  <color name="light_image_picker_primary">#009688</color>
-  <color name="light_image_picker_primary_dark">#00796B</color>
-  <color name="light_image_picker_primary_light">#B2DFDB</color>
-  <color name="light_image_picker_accent">#009688</color>
+  <color name="light_image_picker_primary">#007aff</color>
+  <color name="light_image_picker_primary_dark">#3F51B5</color>
+  <color name="light_image_picker_primary_light">#0090ff</color>
+  <color name="light_image_picker_accent">#0090ff</color>
   <color name="light_image_picker_primary_text">#212121</color>
   <color name="light_image_picker_secondary_text">#757575</color>
   <color name="light_image_picker_icons">#FFFFFF</color>

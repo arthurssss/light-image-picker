@@ -2,6 +2,8 @@ package net.neevek.android.lib.lightimagepicker;
 
 import android.os.Bundle;
 
+import com.bumptech.glide.request.target.ViewTarget;
+
 import net.neevek.android.lib.lightimagepicker.page.LightImagePickerPage;
 import net.neevek.android.lib.paginize.PageActivity;
 
@@ -14,6 +16,9 @@ public class LightImagePickerActivity extends PageActivity {
         getPageManager().enableSwipeToHide(true);
         getPageManager().useSwipePageTransitionEffect();
 
-        new LightImagePickerPage(this).show(false);
+        if (savedInstanceState == null) {
+            ViewTarget.setTagId(R.id.glide_tag);
+            LightImagePickerPage.create(this, "图片", null).show(false);
+        }
     }
 }

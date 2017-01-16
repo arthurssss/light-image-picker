@@ -1,19 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.percent.PercentRelativeLayout
+<net.neevek.android.lib.lightimagepicker.ui.SquareRelativeLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
-  android:layout_height="wrap_content"
-  app:layout_widthPercent="33%"
+  android:layout_height="match_parent"
   >
 
-  <net.neevek.android.lib.lightimagepicker.ui.SquareImageView
-    android:id="@+id/light_image_picker_iv_album_item"
+  <ImageView
+    android:id="@+id/light_image_picker_iv_item_image"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
+    android:layout_height="match_parent"
     android:layout_centerHorizontal="true"
     android:src="@null"
     />
 
-</android.support.percent.PercentRelativeLayout>
+  <View
+    android:id="@+id/light_image_picker_view_photo_list_item_mask"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#66000000"
+    android:visibility="gone"
+    />
+
+  <CheckBox
+    android:id="@+id/light_image_picker_cb_photo_list_item_checkbox"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:button="@null"
+    android:padding="8dp"
+    android:drawableLeft="@drawable/light_image_picker_item_checkbox_selector"
+    />
+
+</net.neevek.android.lib.lightimagepicker.ui.SquareRelativeLayout>

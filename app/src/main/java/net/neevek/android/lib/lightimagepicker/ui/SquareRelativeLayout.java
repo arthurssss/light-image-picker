@@ -3,28 +3,28 @@ package net.neevek.android.lib.lightimagepicker.ui;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 /**
  * Lilith Games
  * Created by JiaminXie on 12/01/2017.
  */
 
-public class SquareImageView extends ImageView {
-    public SquareImageView(Context context) {
+public class SquareRelativeLayout extends RelativeLayout {
+    public SquareRelativeLayout(Context context) {
         super(context);
     }
 
-    public SquareImageView(Context context, AttributeSet attrs) {
+    public SquareRelativeLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public SquareImageView(Context context, AttributeSet attrs, int defStyle) {
+    public SquareRelativeLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
     @TargetApi(21)
-    public SquareImageView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public SquareRelativeLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
