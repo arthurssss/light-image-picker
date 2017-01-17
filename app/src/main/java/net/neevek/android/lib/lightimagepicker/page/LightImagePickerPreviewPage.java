@@ -163,6 +163,10 @@ public class LightImagePickerPreviewPage extends Page
     }
 
     private void finishSelectingImages() {
+        if (mOnImagesSelectedListener == null) {
+            return;
+        }
+
         String[] selectedImages = new String[mSelectedItemSet.size()];
         int index = 0;
         for (LocalMediaResource res : mSelectedItemSet) {

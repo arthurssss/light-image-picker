@@ -44,7 +44,7 @@
   <RelativeLayout
     android:id="@+id/light_image_picker_bottom_bar"
     android:layout_width="match_parent"
-    android:layout_height="48dp"
+    android:layout_height="?attr/actionBarSize"
     android:background="@color/light_image_picker_window_background"
     android:layout_gravity="bottom"
     >

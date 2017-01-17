@@ -2,6 +2,7 @@ package net.neevek.android.lib.lightimagepicker;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import com.bumptech.glide.request.target.ViewTarget;
 
@@ -11,6 +12,8 @@ import net.neevek.android.lib.lightimagepicker.util.L;
 import net.neevek.android.lib.paginize.PageActivity;
 
 public class LightImagePickerActivity extends PageActivity implements OnImagesSelectedListener {
+    public final static String PARAM_TITLE = "param_title";
+    public final static String PARAM_SELECTED_IMAGES = "data_selected_images";
     public final static String DATA_SELECT_IMAGES = "data_selected_images";
 
     @Override
@@ -19,8 +22,10 @@ public class LightImagePickerActivity extends PageActivity implements OnImagesSe
         getPageManager().setDebug(BuildConfig.DEBUG);
 
         if (savedInstanceState == null) {
+            String title = getIntent().getStringExtra(PARAM_TITLE);
+            String[] selectedImages = getIntent().getStringArrayExtra(PARAM_SELECTED_IMAGES);
             LightImagePickerPage
-                    .create(this, "图片", null)
+                    .create(this, TextUtils.isEmpty(title) ? getString(R.string.light_image_picker_album) : title, selectedImages)
                     .setOnImagesSelectedListener(this)
                     .show(false);
         }

@@ -35,7 +35,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    android:layout_marginBottom="48dp"
+    android:layout_marginBottom="?attr/actionBarSize"
     >
     <android.support.v7.widget.RecyclerView
       android:id="@+id/light_image_picker_rv_photo_list"
@@ -64,7 +64,7 @@
 
   <RelativeLayout
     android:layout_width="match_parent"
-    android:layout_height="48dp"
+    android:layout_height="?attr/actionBarSize"
     android:background="@color/light_image_picker_window_background"
     android:layout_gravity="bottom"
     >
@@ -84,7 +84,7 @@
       android:text="\u25e2"
       android:layout_toRightOf="@id/light_image_picker_tv_select_bucket"
       android:gravity="center_vertical"
-      android:textSize="8dp"
+      android:textSize="10dp"
       android:layout_marginTop="3dp"
       android:layout_marginLeft="2dp"
       />

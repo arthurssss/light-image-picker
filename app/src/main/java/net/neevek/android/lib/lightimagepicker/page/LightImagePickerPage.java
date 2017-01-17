@@ -83,7 +83,7 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
         return lightImagePickerPage;
     }
 
-    private LightImagePickerPage(PageActivity pageActivity) {
+    public LightImagePickerPage(PageActivity pageActivity) {
         super(pageActivity);
 
         ToolbarHelper.setNavigationIconEnabled(mToolbar, true, new View.OnClickListener() {
@@ -109,10 +109,10 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
     public void onShow() {
         super.onShow();
 
-        if (mOnImagesSelectedListener == null) {
-            throw new IllegalStateException("OnImagesSelectedListener is required," +
-                    " call setOnImagesSelectedListener to set one before showing the page");
-        }
+//        if (mOnImagesSelectedListener == null) {
+//            throw new IllegalStateException("OnImagesSelectedListener is required," +
+//                    " call setOnImagesSelectedListener to set one before showing the page");
+//        }
 
         mToolbar.setTitle(getBundle().getString(PARAM_TITLE));
         String[] images = getBundle().getStringArray(PARAM_SELECTED_IMAGES);
@@ -210,6 +210,10 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
     }
 
     private void finishSelectingImages() {
+        if (mOnImagesSelectedListener == null) {
+            return;
+        }
+
         String[] selectedImages = new String[mSelectedItemSet.size()];
         int index = 0;
         for (LocalMediaResource res : mSelectedItemSet) {
