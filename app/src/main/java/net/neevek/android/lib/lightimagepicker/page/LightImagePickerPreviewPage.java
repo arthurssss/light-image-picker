@@ -21,6 +21,7 @@ import com.alexvasilkov.gestures.GestureController;
 import com.alexvasilkov.gestures.views.GestureImageView;
 import com.bumptech.glide.Glide;
 
+import net.neevek.android.lib.lightimagepicker.LightImagePickerActivity;
 import net.neevek.android.lib.lightimagepicker.R;
 import net.neevek.android.lib.lightimagepicker.model.OnImagesSelectedListener;
 import net.neevek.android.lib.lightimagepicker.pojo.LocalMediaResource;
@@ -132,7 +133,10 @@ public class LightImagePickerPreviewPage extends Page
     @Override
     public void onHide() {
         super.onHide();
+        clearFullScreenFlags();
+    }
 
+    private void clearFullScreenFlags() {
         if (Build.VERSION.SDK_INT >= 16) {
             getContext().getWindow().getDecorView().setSystemUiVisibility(mOrigSystemUiVisibility);
         }
@@ -156,18 +160,25 @@ public class LightImagePickerPreviewPage extends Page
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.light_image_picker_btn_send:
-                if (mOnImagesSelectedListener != null) {
-                    String[] selectedImages = new String[mSelectedItemSet.size()];
-                    int index = 0;
-                    for (LocalMediaResource res : mSelectedItemSet) {
-                        selectedImages[index] = res.path;
-                        ++index;
-                    }
-                    mOnImagesSelectedListener.onImagesSelected(selectedImages);
-                }
+                finishSelectingImages();
                 break;
-            case R.id.light_image_picker_iv_preview_image:
-                break;
+        }
+    }
+
+    private void finishSelectingImages() {
+        String[] selectedImages = new String[mSelectedItemSet.size()];
+        int index = 0;
+        for (LocalMediaResource res : mSelectedItemSet) {
+            selectedImages[index] = res.path;
+            ++index;
+        }
+        mOnImagesSelectedListener.onImagesSelected(selectedImages);
+
+        if (getContext() instanceof LightImagePickerActivity) {
+            clearFullScreenFlags();
+            getContext().finish();
+        } else {
+            hide(true);
         }
     }
 

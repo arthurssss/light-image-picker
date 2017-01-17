@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
+import net.neevek.android.lib.lightimagepicker.LightImagePickerActivity;
 import net.neevek.android.lib.lightimagepicker.R;
 import net.neevek.android.lib.lightimagepicker.model.LocalMediaResourceLoader;
 import net.neevek.android.lib.lightimagepicker.model.OnImagesSelectedListener;
@@ -88,12 +89,7 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
         ToolbarHelper.setNavigationIconEnabled(mToolbar, true, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!getPageManager().onBackPressed()) {
-                    getContext().finish();
-                    if (mOnImagesSelectedListener != null) {
-                        mOnImagesSelectedListener.onCancelled();
-                    }
-                }
+                onBackPressed();
             }
         });
 
@@ -113,6 +109,11 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
     public void onShow() {
         super.onShow();
 
+        if (mOnImagesSelectedListener == null) {
+            throw new IllegalStateException("OnImagesSelectedListener is required," +
+                    " call setOnImagesSelectedListener to set one before showing the page");
+        }
+
         mToolbar.setTitle(getBundle().getString(PARAM_TITLE));
         String[] images = getBundle().getStringArray(PARAM_SELECTED_IMAGES);
         if (images != null) {
@@ -129,12 +130,14 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
         updateButtonsState();
     }
 
-    public void setMaxAllowedSelection(int maxAllowedSelection) {
+    public LightImagePickerPage setMaxAllowedSelection(int maxAllowedSelection) {
         mMaxAllowedSelection = maxAllowedSelection;
+        return this;
     }
 
-    public void setOnImagesSelectedListener(OnImagesSelectedListener onImagesSelectedListener) {
+    public LightImagePickerPage setOnImagesSelectedListener(OnImagesSelectedListener onImagesSelectedListener) {
         mOnImagesSelectedListener = onImagesSelectedListener;
+        return this;
     }
 
     private void loadBuckets() {
@@ -196,20 +199,29 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
                 break;
             case R.id.light_image_picker_tv_preview:
                 LightImagePickerPreviewPage.create(getContext(), mMaxAllowedSelection)
+                        .setOnImagesSelectedListener(mOnImagesSelectedListener)
                         .setData(null, mSelectedItemSet)
                         .show(true);
                 break;
             case R.id.light_image_picker_btn_send:
-                if (mOnImagesSelectedListener != null) {
-                    String[] selectedImages = new String[mSelectedItemSet.size()];
-                    int index = 0;
-                    for (LocalMediaResource res : mSelectedItemSet) {
-                        selectedImages[index] = res.path;
-                        ++index;
-                    }
-                    mOnImagesSelectedListener.onImagesSelected(selectedImages);
-                }
+                finishSelectingImages();
                 break;
+        }
+    }
+
+    private void finishSelectingImages() {
+        String[] selectedImages = new String[mSelectedItemSet.size()];
+        int index = 0;
+        for (LocalMediaResource res : mSelectedItemSet) {
+            selectedImages[index] = res.path;
+            ++index;
+        }
+        mOnImagesSelectedListener.onImagesSelected(selectedImages);
+
+        if (getContext() instanceof LightImagePickerActivity) {
+            getContext().finish();
+        } else {
+            hide(true);
         }
     }
 
@@ -365,6 +377,7 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
                 return;
             }
             LightImagePickerPreviewPage.create(getContext(), mMaxAllowedSelection)
+                    .setOnImagesSelectedListener(mOnImagesSelectedListener)
                     .setData(mResourceList, mSelectedItemSet)
                     .setStartItemIndex((Integer)v.getTag())
                     .show(true);
