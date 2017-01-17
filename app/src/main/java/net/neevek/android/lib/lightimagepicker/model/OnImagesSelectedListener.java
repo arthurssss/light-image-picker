@@ -7,4 +7,5 @@ package net.neevek.android.lib.lightimagepicker.model;
 
 public interface OnImagesSelectedListener {
     void onImagesSelected(String[] images);
+    void onCancelled();
 }

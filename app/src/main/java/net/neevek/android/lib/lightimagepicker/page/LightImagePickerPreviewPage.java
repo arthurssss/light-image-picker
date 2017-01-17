@@ -41,7 +41,7 @@ import java.util.Set;
 @PageLayout(R.layout.light_image_picker_page_preview)
 public class LightImagePickerPreviewPage extends Page
         implements View.OnClickListener, CompoundButton.OnCheckedChangeListener, ViewPager.OnPageChangeListener {
-    private final static int HIDE_BARS_ANIMATION_DURATION = 200;
+    private final static int HIDE_BARS_ANIMATION_DURATION = 150;
 
     @InjectView(R.id.light_image_picker_toolbar)
     private Toolbar mToolbar;
@@ -190,6 +190,11 @@ public class LightImagePickerPreviewPage extends Page
         updateTitle(position + 1);
     }
 
+    @Override
+    public boolean canSwipeToHide() {
+        return false;
+    }
+
     private class PreviewImagePagerAdapter extends PagerAdapter implements GestureController.OnGestureListener {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
@@ -240,7 +245,7 @@ public class LightImagePickerPreviewPage extends Page
                 }
                 window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-                mViewTopBar.animate().setDuration(HIDE_BARS_ANIMATION_DURATION).translationYBy(-(mViewTopBar.getHeight())).start();
+                mViewTopBar.animate().setDuration(HIDE_BARS_ANIMATION_DURATION).translationYBy(-(mViewTopBar.getHeight()+mViewTopBar.getTop())).start();
                 mViewBottomBar.animate().setDuration(HIDE_BARS_ANIMATION_DURATION).translationYBy(mViewBottomBar.getHeight()).start();
             } else {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);

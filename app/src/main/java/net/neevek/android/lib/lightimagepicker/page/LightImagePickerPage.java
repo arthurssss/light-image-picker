@@ -25,6 +25,7 @@ import net.neevek.android.lib.lightimagepicker.model.OnImagesSelectedListener;
 import net.neevek.android.lib.lightimagepicker.pojo.Bucket;
 import net.neevek.android.lib.lightimagepicker.pojo.LocalMediaResource;
 import net.neevek.android.lib.lightimagepicker.util.Async;
+import net.neevek.android.lib.lightimagepicker.util.ToolbarHelper;
 import net.neevek.android.lib.paginize.Page;
 import net.neevek.android.lib.paginize.PageActivity;
 import net.neevek.android.lib.paginize.annotation.InjectView;
@@ -80,6 +81,18 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
 
     private LightImagePickerPage(PageActivity pageActivity) {
         super(pageActivity);
+
+        ToolbarHelper.setNavigationIconEnabled(mToolbar, true, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!getPageManager().onBackPressed()) {
+                    getContext().finish();
+                    if (mOnImagesSelectedListener != null) {
+                        mOnImagesSelectedListener.onCancelled();
+                    }
+                }
+            }
+        });
 
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             mRvPhotoList.setLayoutManager(new GridLayoutManager(getContext(), 3, LinearLayoutManager.VERTICAL, false));
@@ -219,6 +232,15 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
     public void onBucketSelected(Bucket selectedBucket) {
         loadPhotoListByBucketId(selectedBucket.bucketId);
         toggleBucketList();
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        boolean result = super.onBackPressed();
+        if (mOnImagesSelectedListener != null) {
+            mOnImagesSelectedListener.onCancelled();
+        }
+        return result;
     }
 
     private class AlbumListAdapter extends RecyclerView.Adapter<AlbumListAdapter.ViewHolder>
