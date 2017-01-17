@@ -23,14 +23,14 @@
     android:visibility="gone"
     />
 
-  <CheckBox
+  <android.support.v7.widget.AppCompatCheckBox
     android:id="@+id/light_image_picker_cb_photo_list_item_checkbox"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_alignParentRight="true"
-    android:button="@null"
-    android:padding="8dp"
-    android:drawableLeft="@drawable/light_image_picker_item_checkbox_selector"
-    />
+    android:paddingTop="32dp"
+    android:paddingLeft="4dp"
+    android:theme="@style/Theme.LightImagePicker.CheckBox"
+  />
 
 </net.neevek.android.lib.lightimagepicker.ui.SquareRelativeLayout>

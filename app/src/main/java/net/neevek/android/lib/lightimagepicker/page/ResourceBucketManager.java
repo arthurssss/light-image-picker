@@ -122,7 +122,6 @@ public class ResourceBucketManager {
                     .load(bucket.lastImagePath)
                     .centerCrop()
 //                    .crossFade()
-                    .placeholder(R.drawable.light_image_picker_placeholder)
                     .into(holder.ivBucketIcon);
             holder.tvBucketName.setText(bucket.bucketName);
             holder.tvBucketDesc.setText(mContext.getString(R.string.light_image_picker_item_count, bucket.fileCount));

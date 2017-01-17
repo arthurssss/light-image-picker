@@ -17,8 +17,11 @@ public class LightImagePickerActivity extends PageActivity {
         getPageManager().useSwipePageTransitionEffect();
 
         if (savedInstanceState == null) {
-            ViewTarget.setTagId(R.id.glide_tag);
             LightImagePickerPage.create(this, "图片", null).show(false);
         }
+    }
+
+    static {
+        ViewTarget.setTagId(R.id.glide_tag);
     }
 }

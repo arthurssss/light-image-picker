@@ -289,6 +289,7 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
             }
             LightImagePickerPreviewPage.create(getContext(), mMaxAllowedSelection)
                     .setData(mResourceList, mSelectedItemSet)
+                    .setStartItemIndex((Integer)v.getTag())
                     .show(true);
         }
 

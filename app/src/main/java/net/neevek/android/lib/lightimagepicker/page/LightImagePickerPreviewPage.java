@@ -1,25 +1,28 @@
 package net.neevek.android.lib.lightimagepicker.page;
 
-import android.animation.ObjectAnimator;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alexvasilkov.gestures.GestureController;
+import com.alexvasilkov.gestures.views.GestureImageView;
 import com.bumptech.glide.Glide;
 
 import net.neevek.android.lib.lightimagepicker.R;
 import net.neevek.android.lib.lightimagepicker.model.OnImagesSelectedListener;
 import net.neevek.android.lib.lightimagepicker.pojo.LocalMediaResource;
-import net.neevek.android.lib.lightimagepicker.util.L;
+import net.neevek.android.lib.lightimagepicker.util.ToolbarHelper;
 import net.neevek.android.lib.paginize.Page;
 import net.neevek.android.lib.paginize.PageActivity;
 import net.neevek.android.lib.paginize.annotation.InjectView;
@@ -38,8 +41,12 @@ import java.util.Set;
 @PageLayout(R.layout.light_image_picker_page_preview)
 public class LightImagePickerPreviewPage extends Page
         implements View.OnClickListener, CompoundButton.OnCheckedChangeListener, ViewPager.OnPageChangeListener {
+    private final static int HIDE_BARS_ANIMATION_DURATION = 200;
+
     @InjectView(R.id.light_image_picker_toolbar)
     private Toolbar mToolbar;
+    @InjectView(R.id.light_image_picker_top_bar)
+    private View mViewTopBar;
     @InjectView(R.id.light_image_picker_bottom_bar)
     private View mViewBottomBar;
     @InjectView(value = R.id.light_image_picker_vp_photo_pager, listenerTypes = ViewPager.OnPageChangeListener.class)
@@ -55,7 +62,8 @@ public class LightImagePickerPreviewPage extends Page
     private OnImagesSelectedListener mOnImagesSelectedListener;
 
     private int mMaxAllowedSelection = 9;
-    private int mStartItemIndex = 0;
+    private int mStartItemIndex;
+    private int mOrigSystemUiVisibility;
 
     public static LightImagePickerPreviewPage create(PageActivity pageActivity, int maxAllowedSelection) {
         LightImagePickerPreviewPage previewPage = new LightImagePickerPreviewPage(pageActivity);
@@ -65,6 +73,12 @@ public class LightImagePickerPreviewPage extends Page
 
     private LightImagePickerPreviewPage(PageActivity pageActivity) {
         super(pageActivity);
+        ToolbarHelper.setNavigationIconEnabled(mToolbar, true, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hide(true);
+            }
+        });
     }
 
     public LightImagePickerPreviewPage setData(@Nullable List<LocalMediaResource> resourceList, @NonNull Set<LocalMediaResource> selectedItemSet) {
@@ -73,26 +87,27 @@ public class LightImagePickerPreviewPage extends Page
         return this;
     }
 
-    public void setOnImagesSelectedListener(OnImagesSelectedListener onImagesSelectedListener) {
+    public LightImagePickerPreviewPage setOnImagesSelectedListener(OnImagesSelectedListener onImagesSelectedListener) {
         mOnImagesSelectedListener = onImagesSelectedListener;
+        return this;
     }
 
-    public void setStartItemIndex(int startItemIndex) {
+    public LightImagePickerPreviewPage setStartItemIndex(int startItemIndex) {
         mStartItemIndex = startItemIndex;
+        return this;
     }
 
     @Override
     public void onShow() {
         super.onShow();
-
         if (mResourceList == null) {
             mResourceList = new ArrayList<LocalMediaResource>();
             if (mSelectedItemSet.size() > 0) {
                 mResourceList.addAll(mSelectedItemSet);
             }
         }
-
         mVpPhotoPager.setAdapter(new PreviewImagePagerAdapter());
+
         updateSendButton();
         if (mStartItemIndex >= mResourceList.size()) {
             mStartItemIndex = 0;
@@ -102,6 +117,13 @@ public class LightImagePickerPreviewPage extends Page
         }
 
         updateTitle(mStartItemIndex + 1);
+        mVpPhotoPager.setCurrentItem(mStartItemIndex, false);
+    }
+
+    @Override
+    public void onHide() {
+        super.onHide();
+        getContext().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     private void updateTitle(int index) {
@@ -132,8 +154,6 @@ public class LightImagePickerPreviewPage extends Page
                 }
                 break;
             case R.id.light_image_picker_iv_preview_image:
-                L.d(">>>>>>>>>>>>>>> preview image clicked");
-                ObjectAnimator.ofFloat(mToolbar, "translateY", 1, 0).start();
                 break;
         }
     }
@@ -170,11 +190,14 @@ public class LightImagePickerPreviewPage extends Page
         updateTitle(position + 1);
     }
 
-    private class PreviewImagePagerAdapter extends PagerAdapter {
+    private class PreviewImagePagerAdapter extends PagerAdapter implements GestureController.OnGestureListener {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            ImageView ivPreviewImage = (ImageView)getContext().getLayoutInflater().inflate(R.layout.light_image_picker_preview_item, container, false);
-            ivPreviewImage.setOnClickListener(LightImagePickerPreviewPage.this);
+            GestureImageView ivPreviewImage = (GestureImageView)getContext().getLayoutInflater().inflate(R.layout.light_image_picker_preview_item, container, false);
+            ivPreviewImage.getController().enableScrollInViewPager(mVpPhotoPager);
+            ivPreviewImage.getController().setOnGesturesListener(this);
+            ivPreviewImage.getController().getSettings().setMaxZoom(5);
+
             LocalMediaResource resource = mResourceList.get(position);
 
             container.addView(ivPreviewImage);
@@ -183,6 +206,7 @@ public class LightImagePickerPreviewPage extends Page
                     .load(resource.path)
                     .crossFade()
                     .into(ivPreviewImage);
+
             return ivPreviewImage;
         }
 
@@ -206,5 +230,42 @@ public class LightImagePickerPreviewPage extends Page
 //            // see http://stackoverflow.com/a/7287121/668963
 //            return POSITION_NONE;
 //        }
+
+
+        private void toggleTopBarAndBottomBar() {
+            Window window = getContext().getWindow();
+            if (mViewTopBar.getTranslationY() == 0) {
+                if (mOrigSystemUiVisibility == 0) {
+                    mOrigSystemUiVisibility = window.getDecorView().getSystemUiVisibility();
+                }
+                window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+                mViewTopBar.animate().setDuration(HIDE_BARS_ANIMATION_DURATION).translationYBy(-(mViewTopBar.getHeight())).start();
+                mViewBottomBar.animate().setDuration(HIDE_BARS_ANIMATION_DURATION).translationYBy(mViewBottomBar.getHeight()).start();
+            } else {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+                mViewTopBar.animate().setDuration(HIDE_BARS_ANIMATION_DURATION).translationY(0).start();
+                mViewBottomBar.animate().setDuration(HIDE_BARS_ANIMATION_DURATION).translationY(0).start();
+            }
+        }
+
+        @Override
+        public boolean onSingleTapUp(@NonNull MotionEvent event) {
+            return false;
+        }
+        @Override
+        public void onDown(@NonNull MotionEvent event) { }
+        @Override
+        public void onUpOrCancel(@NonNull MotionEvent event) { }
+        @Override
+        public boolean onSingleTapConfirmed(@NonNull MotionEvent event) {
+            toggleTopBarAndBottomBar();
+            return true;
+        }
+        @Override
+        public void onLongPress(@NonNull MotionEvent event) { }
+        @Override
+        public boolean onDoubleTap(@NonNull MotionEvent event) { return false; }
     }
 }
