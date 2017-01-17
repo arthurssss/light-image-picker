@@ -1,5 +1,6 @@
 package net.neevek.android.lib.lightimagepicker.page;
 
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -42,6 +44,7 @@ import java.util.Set;
 public class LightImagePickerPreviewPage extends Page
         implements View.OnClickListener, CompoundButton.OnCheckedChangeListener, ViewPager.OnPageChangeListener {
     private final static int HIDE_BARS_ANIMATION_DURATION = 150;
+    private final static int SHOW_PAGE_ANIMATION_DURATION = 200;
 
     @InjectView(R.id.light_image_picker_toolbar)
     private Toolbar mToolbar;
@@ -100,6 +103,12 @@ public class LightImagePickerPreviewPage extends Page
     @Override
     public void onShow() {
         super.onShow();
+
+        if (Build.VERSION.SDK_INT >= 16) {
+            mOrigSystemUiVisibility = getContext().getWindow().getDecorView().getSystemUiVisibility();
+            getContext().getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        }
+
         if (mResourceList == null) {
             mResourceList = new ArrayList<LocalMediaResource>();
             if (mSelectedItemSet.size() > 0) {
@@ -123,6 +132,10 @@ public class LightImagePickerPreviewPage extends Page
     @Override
     public void onHide() {
         super.onHide();
+
+        if (Build.VERSION.SDK_INT >= 16) {
+            getContext().getWindow().getDecorView().setSystemUiVisibility(mOrigSystemUiVisibility);
+        }
         getContext().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
@@ -195,6 +208,38 @@ public class LightImagePickerPreviewPage extends Page
         return false;
     }
 
+    @Override
+    public boolean onPushPageAnimation(View oldPageView, View newPageView, AnimationDirection animationDirection) {
+        newPageView.setScaleX(1.5f);
+        newPageView.setScaleY(1.5f);
+        newPageView.setAlpha(0);
+        newPageView.animate()
+                .alpha(1)
+                .scaleX(1)
+                .scaleY(1)
+                .setInterpolator(new DecelerateInterpolator())
+                .setDuration(getAnimationDuration())
+                .start();
+        return true;
+    }
+
+    @Override
+    public boolean onPopPageAnimation(View oldPageView, View newPageView, AnimationDirection animationDirection) {
+        oldPageView.animate()
+                .scaleX(1.5f)
+                .scaleY(1.5f)
+                .alpha(0)
+                .setInterpolator(new DecelerateInterpolator())
+                .setDuration(getAnimationDuration())
+                .start();
+        return true;
+    }
+
+    @Override
+    public int getAnimationDuration() {
+        return SHOW_PAGE_ANIMATION_DURATION;
+    }
+
     private class PreviewImagePagerAdapter extends PagerAdapter implements GestureController.OnGestureListener {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
@@ -240,9 +285,6 @@ public class LightImagePickerPreviewPage extends Page
         private void toggleTopBarAndBottomBar() {
             Window window = getContext().getWindow();
             if (mViewTopBar.getTranslationY() == 0) {
-                if (mOrigSystemUiVisibility == 0) {
-                    mOrigSystemUiVisibility = window.getDecorView().getSystemUiVisibility();
-                }
                 window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
                 mViewTopBar.animate().setDuration(HIDE_BARS_ANIMATION_DURATION).translationYBy(-(mViewTopBar.getHeight()+mViewTopBar.getTop())).start();

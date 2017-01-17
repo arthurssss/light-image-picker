@@ -1,6 +1,7 @@
 package net.neevek.android.lib.lightimagepicker.page;
 
 import android.Manifest;
+import android.animation.Animator;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -11,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -44,6 +46,7 @@ import java.util.Set;
 
 @PageLayout(R.layout.light_image_picker_page_album)
 public class LightImagePickerPage extends Page implements ResourceBucketManager.OnBucketSelectedListener, View.OnClickListener {
+    private final static int SHOW_BUCKET_LIST_ANIMATION_DURATION = 150;
     private final static String PARAM_TITLE = "param_title";
     private final static String PARAM_SELECTED_IMAGES = "param_selected_images";
 
@@ -211,9 +214,56 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
     }
 
     private void toggleBucketList() {
-        int visibility = mRvBucketList.getVisibility();
-        mViewBucketListBg.setVisibility(visibility == View.VISIBLE ? View.GONE : View.VISIBLE);
-        mRvBucketList.setVisibility(visibility == View.VISIBLE ? View.GONE : View.VISIBLE);
+        if (mRvBucketList.getVisibility() == View.GONE) {
+            mViewBucketListBg.setVisibility(View.VISIBLE);
+            mRvBucketList.setVisibility(View.VISIBLE);
+            if (mRvBucketList.getHeight() == 0) {
+                mRvBucketList.layout(0, 0, getView().getWidth(), getView().getHeight());
+            }
+
+            mViewBucketListBg.setAlpha(0);
+            mViewBucketListBg.animate()
+                    .alpha(0.6f)
+                    .setDuration(SHOW_BUCKET_LIST_ANIMATION_DURATION)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .setListener(null)  // required to clear the listener set in the 'else' part
+                    .start();
+            mRvBucketList.setTranslationY(mRvBucketList.getHeight());
+            mRvBucketList.animate()
+                    .translationY(0)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .setListener(null)  // required to clear the listener set in the 'else' part
+                    .setDuration(SHOW_BUCKET_LIST_ANIMATION_DURATION)
+                    .start();
+        } else {
+            mViewBucketListBg.animate()
+                    .alpha(0f)
+                    .setDuration(SHOW_BUCKET_LIST_ANIMATION_DURATION)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        public void onAnimationEnd(Animator animation) {
+                            mViewBucketListBg.setVisibility(View.GONE);
+                        }
+                        public void onAnimationStart(Animator animation) { }
+                        public void onAnimationCancel(Animator animation) { }
+                        public void onAnimationRepeat(Animator animation) { }
+                    })
+                    .start();
+            mRvBucketList.setTranslationY(0);
+            mRvBucketList.animate()
+                    .translationY(mRvBucketList.getHeight())
+                    .setDuration(SHOW_BUCKET_LIST_ANIMATION_DURATION)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        public void onAnimationEnd(Animator animation) {
+                            mRvBucketList.setVisibility(View.GONE);
+                        }
+                        public void onAnimationStart(Animator animation) { }
+                        public void onAnimationCancel(Animator animation) { }
+                        public void onAnimationRepeat(Animator animation) { }
+                    })
+                    .start();
+        }
     }
 
     private void updateButtonsState() {
@@ -236,6 +286,11 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
 
     @Override
     public boolean onBackPressed() {
+        if (mRvBucketList.getVisibility() == View.VISIBLE) {
+            toggleBucketList();
+            return true;
+        }
+
         boolean result = super.onBackPressed();
         if (mOnImagesSelectedListener != null) {
             mOnImagesSelectedListener.onCancelled();
