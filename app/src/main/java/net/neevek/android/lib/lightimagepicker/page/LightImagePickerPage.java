@@ -118,7 +118,7 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
         String[] images = getBundle().getStringArray(PARAM_SELECTED_IMAGES);
         if (images != null) {
             for (int i = 0; i < images.length; ++i) {
-                mSelectedItemSet.add(new LocalMediaResource(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, images[i], 0, 0));
+                mSelectedItemSet.add(new LocalMediaResource(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, 0, images[i], 0, 0));
             }
         }
     }
@@ -332,6 +332,11 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
                     .centerCrop()
                     .crossFade()
                     .into(holder.ivItemImage);
+
+//            Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(
+//                    getContext().getContentResolver(), resource.id,
+//                    MediaStore.Images.Thumbnails.MINI_KIND,
+//                    (BitmapFactory.Options) null );
 
             boolean selected = mSelectedItemSet.contains(resource);
             holder.viewItemMask.setVisibility(selected ? View.VISIBLE : View.GONE);

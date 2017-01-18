@@ -24,6 +24,7 @@ public class LocalMediaResourceLoader {
     public static List<LocalMediaResource> loadImagesAndVideos(Context context) {
         String[] projection = {
                 MediaStore.Files.FileColumns.MEDIA_TYPE,
+                MediaStore.Files.FileColumns._ID,
                 MediaStore.Files.FileColumns.DATA,
                 MediaStore.Files.FileColumns.SIZE,
                 MediaStore.Files.FileColumns.DATE_ADDED,
@@ -53,9 +54,10 @@ public class LocalMediaResourceLoader {
             while (cursor.moveToNext()) {
                 LocalMediaResource resource = new LocalMediaResource(
                         cursor.getInt(0),       // media type
-                        cursor.getString(1),    // path
-                        cursor.getInt(2),      // size
-                        cursor.getLong(3)       // date added
+                        cursor.getLong(1),       // media type
+                        cursor.getString(2),    // path
+                        cursor.getInt(3),      // size
+                        cursor.getLong(4)       // date added
                 );
                 resourceList.add(resource);
             }
@@ -130,11 +132,13 @@ public class LocalMediaResourceLoader {
     public static List<LocalMediaResource> getImagesByBucketId(Context context, String bucketId) {
         L.d(">>>>>>>>>>>> loading images by bucketId: %s", bucketId);
         String[] projection = {
+                MediaStore.Images.ImageColumns._ID,
                 MediaStore.Images.ImageColumns.DATA,
                 MediaStore.Images.ImageColumns.SIZE,
                 MediaStore.Images.ImageColumns.DATE_TAKEN,
         };
         Uri mediaUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
 
         String selection = MediaStore.Images.ImageColumns.BUCKET_ID + "=?";
         String[] selectionArgs = new String[]{ bucketId };
@@ -154,9 +158,10 @@ public class LocalMediaResourceLoader {
                 while (cursor.moveToNext()) {
                     LocalMediaResource resource = new LocalMediaResource(
                             MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE,
-                            cursor.getString(0),
-                            cursor.getInt(1),
-                            cursor.getLong(2)
+                            cursor.getLong(0),
+                            cursor.getString(1),
+                            cursor.getInt(2),
+                            cursor.getLong(3)
                     );
                     resourceList.add(resource);
                 }
