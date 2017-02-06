@@ -16,8 +16,8 @@ public class LightImagePickerActivity extends PageActivity implements OnImagesSe
     public final static String PARAM_SELECTED_IMAGES = "param_selected_images";
     public final static String RESULT_SELECTED_IMAGES = "result_selected_images";
 
-    public final static void showPicker(Activity activity) {
-        activity.startActivityForResult(new Intent(activity, LightImagePickerActivity.class), 0);
+    public final static void showPicker(Activity activity, int requestCode) {
+        activity.startActivityForResult(new Intent(activity, LightImagePickerActivity.class), requestCode);
     }
 
     @Override
