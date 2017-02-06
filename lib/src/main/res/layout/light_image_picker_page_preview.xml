@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:fitsSystemWindows="false"
+  >
+
+  <android.support.v4.view.ViewPager
+    android:id="@+id/light_image_picker_vp_photo_pager"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000"
+    />
+
+  <android.support.design.widget.AppBarLayout
+    android:id="@+id/light_image_picker_top_bar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+    <android.support.v7.widget.Toolbar
+      android:id="@+id/light_image_picker_toolbar"
+      android:layout_width="match_parent"
+      android:layout_height="?attr/actionBarSize"
+      android:theme="@style/ThemeOverlay.AppCompat.Dark"
+      app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+      android:layout_marginTop="24dp"
+      >
+      <android.support.v7.widget.AppCompatButton
+        android:id="@+id/light_image_picker_btn_send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:text="@string/light_image_picker_send"
+        android:enabled="false"
+        android:layout_marginRight="12dp"
+        app:backgroundTint="?attr/colorAccent"
+        />
+    </android.support.v7.widget.Toolbar>
+  </android.support.design.widget.AppBarLayout>
+
+  <RelativeLayout
+    android:id="@+id/light_image_picker_bottom_bar"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="@color/light_image_picker_window_background"
+    android:layout_gravity="bottom"
+    >
+
+    <CheckBox
+      android:id="@+id/light_image_picker_cb_select"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:text="@string/light_image_picker_select"
+      android:paddingRight="12dp"
+      android:textSize="14dp"
+      android:textColor="@color/light_image_picker_button_text_selector"
+      android:layout_alignParentRight="true"
+      android:textStyle="bold"
+      />
+
+    <View
+      android:layout_width="match_parent"
+      android:layout_height="1px"
+      android:background="@color/light_image_picker_divider"
+      />
+  </RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>
