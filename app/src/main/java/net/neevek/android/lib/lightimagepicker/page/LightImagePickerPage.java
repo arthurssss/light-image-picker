@@ -10,6 +10,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
@@ -308,6 +309,10 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
         }
 
         boolean result = super.onBackPressed();
+        if (!result) {
+            result = true;
+            getContext().finish();
+        }
         if (mOnImagesSelectedListener != null) {
             mOnImagesSelectedListener.onCancelled();
         }
@@ -316,6 +321,8 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
 
     private class AlbumListAdapter extends RecyclerView.Adapter<AlbumListAdapter.ViewHolder>
             implements CompoundButton.OnCheckedChangeListener, View.OnClickListener {
+        private int sideLength = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics());
+
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             ViewHolder holder = new ViewHolder(getContext().getLayoutInflater().inflate(R.layout.light_image_picker_photo_list_item, parent, false));
@@ -327,16 +334,34 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             LocalMediaResource resource = mResourceList.get(position);
-            Glide.with(getContext())
-                    .load(resource.path)
-                    .centerCrop()
-                    .crossFade()
-                    .into(holder.ivItemImage);
 
-//            Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(
-//                    getContext().getContentResolver(), resource.id,
-//                    MediaStore.Images.Thumbnails.MINI_KIND,
-//                    (BitmapFactory.Options) null );
+//            boolean bitmapSet = false;
+//            try {
+//                BitmapFactory.Options options = new BitmapFactory.Options();
+//                Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(
+//                        getContext().getContentResolver(), resource.id,
+//                        MediaStore.Images.Thumbnails.MINI_KIND,
+//                        options);
+//                if (bitmap != null) {
+//                    holder.ivItemImage.setImageBitmap(bitmap);
+//                    L.d("use thumbnail: %dx%d", bitmap.getWidth(), bitmap.getHeight());
+//                    bitmapSet = true;
+//                }
+//            } catch (Exception e) {
+//                if (BuildConfig.DEBUG) {
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//            if (!bitmapSet) {
+                Glide.with(getContext())
+                        .load(resource.path)
+                        .override(sideLength, sideLength)
+                        .centerCrop()
+                        .crossFade()
+
+                        .into(holder.ivItemImage);
+//            }
 
             boolean selected = mSelectedItemSet.contains(resource);
             holder.viewItemMask.setVisibility(selected ? View.VISIBLE : View.GONE);

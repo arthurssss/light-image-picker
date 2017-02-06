@@ -6,6 +6,7 @@ import android.graphics.Rect;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -107,6 +108,8 @@ public class ResourceBucketManager {
     private class BucketItemListAdapter
             extends RecyclerView.Adapter<BucketItemListAdapter.ViewHolder>
             implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
+        private int sideLength = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, mContext.getResources().getDisplayMetrics());
+
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             ViewHolder holder = new ViewHolder(LayoutInflater.from(mContext).inflate(R.layout.light_image_picker_bucket_list_item, parent, false));
@@ -121,8 +124,10 @@ public class ResourceBucketManager {
             Glide.with(mContext)
                     .load(bucket.lastImagePath)
                     .centerCrop()
+                    .override(sideLength, sideLength)
 //                    .crossFade()
                     .into(holder.ivBucketIcon);
+
             holder.tvBucketName.setText(bucket.bucketName);
             holder.tvBucketDesc.setText(mContext.getString(R.string.light_image_picker_item_count, bucket.fileCount));
             holder.rbBucketChecked.setChecked(position == mCurrentCheckedBucketIndex);

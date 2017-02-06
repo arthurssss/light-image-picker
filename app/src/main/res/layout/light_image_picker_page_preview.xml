@@ -58,6 +58,7 @@
       android:textSize="14dp"
       android:textColor="@color/light_image_picker_button_text_selector"
       android:layout_alignParentRight="true"
+      android:textStyle="bold"
       />
 
     <View

@@ -14,17 +14,22 @@ import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alexvasilkov.gestures.GestureController;
 import com.alexvasilkov.gestures.views.GestureImageView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable;
 
+import net.neevek.android.lib.lightimagepicker.BuildConfig;
 import net.neevek.android.lib.lightimagepicker.LightImagePickerActivity;
 import net.neevek.android.lib.lightimagepicker.R;
 import net.neevek.android.lib.lightimagepicker.model.OnImagesSelectedListener;
 import net.neevek.android.lib.lightimagepicker.pojo.LocalMediaResource;
+import net.neevek.android.lib.lightimagepicker.util.L;
 import net.neevek.android.lib.lightimagepicker.util.ToolbarHelper;
 import net.neevek.android.lib.paginize.Page;
 import net.neevek.android.lib.paginize.PageActivity;
@@ -255,7 +260,7 @@ public class LightImagePickerPreviewPage extends Page
     private class PreviewImagePagerAdapter extends PagerAdapter implements GestureController.OnGestureListener {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            GestureImageView ivPreviewImage = (GestureImageView)getContext().getLayoutInflater().inflate(R.layout.light_image_picker_preview_item, container, false);
+            final GestureImageView ivPreviewImage = (GestureImageView)getContext().getLayoutInflater().inflate(R.layout.light_image_picker_preview_item, container, false);
             ivPreviewImage.getController().enableScrollInViewPager(mVpPhotoPager);
             ivPreviewImage.getController().setOnGesturesListener(this);
             ivPreviewImage.getController().getSettings().setMaxZoom(5);
@@ -264,16 +269,32 @@ public class LightImagePickerPreviewPage extends Page
 
             container.addView(ivPreviewImage);
 
+
             Glide.with(getContext())
                     .load(resource.path)
-                    .crossFade()
+                    .skipMemoryCache(true)
+                    .override(getResources().getDisplayMetrics().widthPixels/3, getResources().getDisplayMetrics().heightPixels/3)
+//                    .sizeMultiplier(0.3f)
+                    .dontTransform()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(ivPreviewImage);
+
+//                    .into(new SimpleTarget<Bitmap>() {
+//                        @Override
+//                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+//                            ivPreviewImage.setImageBitmap(resource);
+//                        }
+//                    });
 
             return ivPreviewImage;
         }
 
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
+            if (BuildConfig.DEBUG) {
+                GlideBitmapDrawable d = (GlideBitmapDrawable) ((ImageView) object).getDrawable();
+                L.d(">>>>>>> remove: %dx%d", d.getIntrinsicWidth(), d.getIntrinsicHeight());
+            }
             container.removeView((View)object);
         }
 
@@ -292,7 +313,6 @@ public class LightImagePickerPreviewPage extends Page
 //            // see http://stackoverflow.com/a/7287121/668963
 //            return POSITION_NONE;
 //        }
-
 
         private void toggleTopBarAndBottomBar() {
             Window window = getContext().getWindow();
