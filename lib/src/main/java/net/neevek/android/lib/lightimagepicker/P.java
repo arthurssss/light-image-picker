@@ -12,6 +12,7 @@ public final class P {
         public static final String light_image_picker_iv_bucket_icon="light_image_picker_iv_bucket_icon";
         public static final String light_image_picker_iv_item_image="light_image_picker_iv_item_image";
         public static final String light_image_picker_iv_preview_image="light_image_picker_iv_preview_image";
+        public static final String light_image_picker_pb_preview="light_image_picker_pb_preview";
         public static final String light_image_picker_rb_bucket_checked="light_image_picker_rb_bucket_checked";
         public static final String light_image_picker_rv_bucket_list="light_image_picker_rv_bucket_list";
         public static final String light_image_picker_rv_photo_list="light_image_picker_rv_photo_list";
@@ -29,6 +30,7 @@ public final class P {
         public static final String light_image_picker_bucket_list_item="light_image_picker_bucket_list_item";
         public static final String light_image_picker_page_album="light_image_picker_page_album";
         public static final String light_image_picker_page_preview="light_image_picker_page_preview";
+        public static final String light_image_picker_page_viewer="light_image_picker_page_viewer";
         public static final String light_image_picker_photo_list_item="light_image_picker_photo_list_item";
         public static final String light_image_picker_preview_item="light_image_picker_preview_item";
     }

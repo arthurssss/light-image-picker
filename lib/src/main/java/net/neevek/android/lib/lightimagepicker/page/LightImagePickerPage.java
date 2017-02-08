@@ -10,6 +10,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,11 +38,15 @@ import net.neevek.android.lib.paginize.PageActivity;
 import net.neevek.android.lib.paginize.annotation.InjectViewByName;
 import net.neevek.android.lib.paginize.annotation.PageLayoutName;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static net.neevek.android.lib.lightimagepicker.LightImagePickerActivity.PARAM_SELECTED_IMAGES;
+import static net.neevek.android.lib.lightimagepicker.LightImagePickerActivity.PARAM_TITLE;
 
 /**
  * Lilith Games
@@ -51,8 +56,6 @@ import java.util.Set;
 @PageLayoutName(P.layout.light_image_picker_page_album)
 public class LightImagePickerPage extends Page implements ResourceBucketManager.OnBucketSelectedListener, View.OnClickListener {
     private final static int SHOW_BUCKET_LIST_ANIMATION_DURATION = 150;
-    private final static String PARAM_TITLE = "param_title";
-    private final static String PARAM_SELECTED_IMAGES = "param_selected_images";
 
     @InjectViewByName(P.id.light_image_picker_toolbar)
     private Toolbar mToolbar;
@@ -79,10 +82,10 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
     private OnImagesSelectedListener mOnImagesSelectedListener;
     private int mMaxAllowedSelection = 9;
 
-    public static LightImagePickerPage create(PageActivity pageActivity, String title, String[] selectedImages) {
+    public static LightImagePickerPage create(PageActivity pageActivity, String title, ArrayList<String> selectedImages) {
         LightImagePickerPage lightImagePickerPage = new LightImagePickerPage(pageActivity);
-        lightImagePickerPage.getBundle().putString(PARAM_TITLE, title);
-        lightImagePickerPage.getBundle().putStringArray(PARAM_SELECTED_IMAGES, selectedImages);
+        lightImagePickerPage.getBundle().putString(LightImagePickerActivity.PARAM_TITLE, TextUtils.isEmpty(title) ? lightImagePickerPage.getString(R.string.light_image_picker_album) : title);
+        lightImagePickerPage.getBundle().putStringArrayList(LightImagePickerActivity.PARAM_SELECTED_IMAGES, selectedImages);
         return lightImagePickerPage;
     }
 
@@ -118,10 +121,10 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
 //        }
 
         mToolbar.setTitle(getBundle().getString(PARAM_TITLE));
-        String[] images = getBundle().getStringArray(PARAM_SELECTED_IMAGES);
+        ArrayList<String> images = getBundle().getStringArrayList(PARAM_SELECTED_IMAGES);
         if (images != null) {
-            for (int i = 0; i < images.length; ++i) {
-                mSelectedItemSet.add(new LocalMediaResource(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, 0, images[i], 0, 0));
+            for (int i = 0; i < images.size(); ++i) {
+                mSelectedItemSet.add(new LocalMediaResource(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE, 0, images.get(i), 0, 0));
             }
         }
     }
@@ -216,11 +219,9 @@ public class LightImagePickerPage extends Page implements ResourceBucketManager.
             return;
         }
 
-        String[] selectedImages = new String[mSelectedItemSet.size()];
-        int index = 0;
+        ArrayList<String> selectedImages = new ArrayList<String>(mSelectedItemSet.size());
         for (LocalMediaResource res : mSelectedItemSet) {
-            selectedImages[index] = res.path;
-            ++index;
+            selectedImages.add(res.path);
         }
         mOnImagesSelectedListener.onImagesSelected(selectedImages);
 

@@ -1,8 +1,8 @@
 package net.neevek.android.lib.lightimagepicker.page;
 
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
@@ -12,11 +12,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.alexvasilkov.gestures.GestureController;
 import com.alexvasilkov.gestures.views.GestureImageView;
@@ -31,8 +27,6 @@ import net.neevek.android.lib.lightimagepicker.BuildConfig;
 import net.neevek.android.lib.lightimagepicker.LightImagePickerActivity;
 import net.neevek.android.lib.lightimagepicker.P;
 import net.neevek.android.lib.lightimagepicker.R;
-import net.neevek.android.lib.lightimagepicker.model.OnImagesSelectedListener;
-import net.neevek.android.lib.lightimagepicker.pojo.LocalMediaResource;
 import net.neevek.android.lib.lightimagepicker.util.L;
 import net.neevek.android.lib.lightimagepicker.util.ToolbarHelper;
 import net.neevek.android.lib.paginize.Page;
@@ -41,18 +35,20 @@ import net.neevek.android.lib.paginize.annotation.InjectViewByName;
 import net.neevek.android.lib.paginize.annotation.PageLayoutName;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+
+import static net.neevek.android.lib.lightimagepicker.LightImagePickerActivity.PARAM_SELECTED_IMAGES;
+import static net.neevek.android.lib.lightimagepicker.LightImagePickerActivity.PARAM_SELECTED_IMAGES_START_INDEX;
+import static net.neevek.android.lib.lightimagepicker.LightImagePickerActivity.PARAM_TITLE;
 
 /**
  * Lilith Games
  * Created by JiaminXie on 16/01/2017.
  */
 
-@PageLayoutName(P.layout.light_image_picker_page_preview)
-public class LightImagePickerPreviewPage extends Page
-        implements View.OnClickListener, CompoundButton.OnCheckedChangeListener, ViewPager.OnPageChangeListener {
+@PageLayoutName(P.layout.light_image_picker_page_viewer)
+public class LightImageViewerPage extends Page implements ViewPager.OnPageChangeListener {
     private final static int HIDE_BARS_ANIMATION_DURATION = 150;
     private final static int SHOW_PAGE_ANIMATION_DURATION = 200;
 
@@ -60,58 +56,43 @@ public class LightImagePickerPreviewPage extends Page
     private Toolbar mToolbar;
     @InjectViewByName(P.id.light_image_picker_top_bar)
     private View mViewTopBar;
-    @InjectViewByName(P.id.light_image_picker_bottom_bar)
-    private View mViewBottomBar;
     @InjectViewByName(value = P.id.light_image_picker_vp_photo_pager, listenerTypes = ViewPager.OnPageChangeListener.class)
     private ViewPager mVpPhotoPager;
-    @InjectViewByName(value = P.id.light_image_picker_cb_select, listenerTypes = CompoundButton.OnCheckedChangeListener.class)
-    private CheckBox mCbSelectImage;
-    @InjectViewByName(value = P.id.light_image_picker_btn_send, listenerTypes = View.OnClickListener.class)
-    private TextView mBtnSend;
 
-    private List<LocalMediaResource> mResourceList;
-    private Set<LocalMediaResource> mSelectedItemSet = new LinkedHashSet<LocalMediaResource>();
-
-    private OnImagesSelectedListener mOnImagesSelectedListener;
-
-    private int mMaxAllowedSelection = 9;
+    private List<String> mImageUriList;
     private int mStartItemIndex;
 
-    public static LightImagePickerPreviewPage create(PageActivity pageActivity, int maxAllowedSelection) {
-        LightImagePickerPreviewPage previewPage = new LightImagePickerPreviewPage(pageActivity);
-        previewPage.mMaxAllowedSelection = maxAllowedSelection;
-        return previewPage;
+    public static LightImageViewerPage create(PageActivity pageActivity, ArrayList<String> selectedImages, int startItemIndex) {
+        LightImageViewerPage viewerPage = new LightImageViewerPage(pageActivity);
+        viewerPage.getBundle().putStringArrayList(LightImagePickerActivity.PARAM_SELECTED_IMAGES, selectedImages);
+        viewerPage.getBundle().putInt(PARAM_SELECTED_IMAGES_START_INDEX, startItemIndex);
+        return viewerPage;
     }
 
-    private LightImagePickerPreviewPage(PageActivity pageActivity) {
+    private LightImageViewerPage(PageActivity pageActivity) {
         super(pageActivity);
         ToolbarHelper.setNavigationIconEnabled(mToolbar, true, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                hide(true);
+                getContext().finish();
             }
         });
     }
 
-    public LightImagePickerPreviewPage setData(@Nullable List<LocalMediaResource> resourceList, @NonNull Set<LocalMediaResource> selectedItemSet) {
-        mSelectedItemSet = selectedItemSet;
-        mResourceList = resourceList;
-        return this;
-    }
 
-    public LightImagePickerPreviewPage setOnImagesSelectedListener(OnImagesSelectedListener onImagesSelectedListener) {
-        mOnImagesSelectedListener = onImagesSelectedListener;
-        return this;
-    }
-
-    public LightImagePickerPreviewPage setStartItemIndex(int startItemIndex) {
-        mStartItemIndex = startItemIndex;
-        return this;
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(PARAM_SELECTED_IMAGES_START_INDEX, mVpPhotoPager.getCurrentItem());
     }
 
     @Override
     public void onShow() {
         super.onShow();
+
+        mToolbar.setTitle(getBundle().getString(PARAM_TITLE));
+        mImageUriList = getBundle().getStringArrayList(PARAM_SELECTED_IMAGES);
+        mStartItemIndex = getBundle().getInt(PARAM_SELECTED_IMAGES_START_INDEX);
 
         if (Build.VERSION.SDK_INT >= 16) {
             getContext().getWindow().getDecorView().setSystemUiVisibility(
@@ -119,20 +100,14 @@ public class LightImagePickerPreviewPage extends Page
                     View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         }
 
-        if (mResourceList == null) {
-            mResourceList = new ArrayList<LocalMediaResource>();
-            if (mSelectedItemSet.size() > 0) {
-                mResourceList.addAll(mSelectedItemSet);
-            }
-        }
         mVpPhotoPager.setAdapter(new PreviewImagePagerAdapter());
 
-        updateSendButton();
-        if (mStartItemIndex >= mResourceList.size()) {
-            mStartItemIndex = 0;
+        if (mImageUriList == null) {
+            mImageUriList = Collections.EMPTY_LIST;
         }
-        if (mStartItemIndex < mResourceList.size()) {
-            mCbSelectImage.setChecked(mSelectedItemSet.contains(mResourceList.get(mStartItemIndex)));
+
+        if (mStartItemIndex >= mImageUriList.size()) {
+            mStartItemIndex = 0;
         }
 
         updateTitle(mStartItemIndex + 1);
@@ -150,64 +125,7 @@ public class LightImagePickerPreviewPage extends Page
     }
 
     private void updateTitle(int index) {
-        mToolbar.setTitle(getString(R.string.light_image_picker_preview_items, index, mResourceList.size()));
-    }
-
-    private void updateSendButton() {
-        mBtnSend.setEnabled(mSelectedItemSet.size() > 0);
-        if (mSelectedItemSet.size() == 0) {
-            mBtnSend.setText(R.string.light_image_picker_send);
-        } else {
-            mBtnSend.setText(getString(R.string.light_image_picker_send_selected_items, mSelectedItemSet.size()));
-        }
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.light_image_picker_btn_send) {
-            finishSelectingImages();
-        }
-    }
-
-    private void finishSelectingImages() {
-        if (mOnImagesSelectedListener == null) {
-            return;
-        }
-
-        ArrayList<String> selectedImages = new ArrayList<String>(mSelectedItemSet.size());
-        for (LocalMediaResource res : mSelectedItemSet) {
-            selectedImages.add(res.path);
-        }
-        mOnImagesSelectedListener.onImagesSelected(selectedImages);
-
-        if (getContext() instanceof LightImagePickerActivity) {
-            clearFullScreenFlags();
-            getContext().finish();
-        } else {
-            hide(true);
-        }
-    }
-
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (!buttonView.isPressed()) {
-            return;
-        }
-
-        if (isChecked && mSelectedItemSet.size() >= mMaxAllowedSelection) {
-            buttonView.setChecked(false);
-            Toast.makeText(getContext(), getString(R.string.light_image_picker_select_item_count_limit, mMaxAllowedSelection), Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        LocalMediaResource resource = mResourceList.get(mVpPhotoPager.getCurrentItem());
-        if (isChecked) {
-            mSelectedItemSet.add(resource);
-        } else {
-            mSelectedItemSet.remove(resource);
-        }
-
-        updateSendButton();
+        mToolbar.setTitle(getString(R.string.light_image_picker_preview_items, index, mImageUriList.size()));
     }
 
     @Override
@@ -216,7 +134,6 @@ public class LightImagePickerPreviewPage extends Page
     public void onPageScrollStateChanged(int state) { }
     @Override
     public void onPageSelected(int position) {
-        mCbSelectImage.setChecked(mSelectedItemSet.contains(mResourceList.get(position)));
         updateTitle(position + 1);
     }
 
@@ -257,6 +174,19 @@ public class LightImagePickerPreviewPage extends Page
         return SHOW_PAGE_ANIMATION_DURATION;
     }
 
+    private void toggleTopBarAndBottomBar() {
+        Window window = getContext().getWindow();
+        if (mViewTopBar.getTranslationY() == 0) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+            mViewTopBar.animate().setDuration(HIDE_BARS_ANIMATION_DURATION).translationYBy(-(mViewTopBar.getHeight()+mViewTopBar.getTop())).start();
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+            mViewTopBar.animate().setDuration(HIDE_BARS_ANIMATION_DURATION).translationY(0).start();
+        }
+    }
+
     private class PreviewImagePagerAdapter extends PagerAdapter implements GestureController.OnGestureListener, View.OnClickListener {
         class ViewHolder {
             public ViewGroup layoutItemContainer;
@@ -278,20 +208,19 @@ public class LightImagePickerPreviewPage extends Page
         public Object instantiateItem(ViewGroup container, int position) {
             final ViewHolder holder = new ViewHolder((ViewGroup)getContext().getLayoutInflater().inflate(R.layout.light_image_picker_preview_item, container, false));
             holder.layoutItemContainer.setTag(holder);
+
             holder.layoutItemContainer.setOnClickListener(this);
 
 //            holder.ivPreviewImage.getController().enableScrollInViewPager(mVpPhotoPager);
             holder.ivPreviewImage.getController().setOnGesturesListener(this);
             holder.ivPreviewImage.getController().getSettings().setMaxZoom(5);
 
-            LocalMediaResource resource = mResourceList.get(position);
+            String imageUri = mImageUriList.get(position);
 
             container.addView(holder.layoutItemContainer);
 
-
             Glide.with(getContext())
-                    .load(resource.path)
-                    .skipMemoryCache(true)
+                    .load(imageUri)
                     .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
                         public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
@@ -305,10 +234,10 @@ public class LightImagePickerPreviewPage extends Page
                             return false;
                         }
                     })
+                    .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                     .override(getResources().getDisplayMetrics().widthPixels/3, getResources().getDisplayMetrics().heightPixels/3)
 //                    .sizeMultiplier(0.3f)
                     .dontTransform()
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .into(holder.ivPreviewImage);
 
 //                    .into(new SimpleTarget<Bitmap>() {
@@ -333,7 +262,7 @@ public class LightImagePickerPreviewPage extends Page
 
         @Override
         public int getCount() {
-            return mResourceList.size();
+            return mImageUriList.size();
         }
 
         @Override
@@ -346,21 +275,6 @@ public class LightImagePickerPreviewPage extends Page
 //            // see http://stackoverflow.com/a/7287121/668963
 //            return POSITION_NONE;
 //        }
-
-        private void toggleTopBarAndBottomBar() {
-            Window window = getContext().getWindow();
-            if (mViewTopBar.getTranslationY() == 0) {
-                window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-                mViewTopBar.animate().setDuration(HIDE_BARS_ANIMATION_DURATION).translationYBy(-(mViewTopBar.getHeight()+mViewTopBar.getTop())).start();
-                mViewBottomBar.animate().setDuration(HIDE_BARS_ANIMATION_DURATION).translationYBy(mViewBottomBar.getHeight()).start();
-            } else {
-                window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-                mViewTopBar.animate().setDuration(HIDE_BARS_ANIMATION_DURATION).translationY(0).start();
-                mViewBottomBar.animate().setDuration(HIDE_BARS_ANIMATION_DURATION).translationY(0).start();
-            }
-        }
 
         @Override
         public boolean onSingleTapUp(@NonNull MotionEvent event) {
