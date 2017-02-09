@@ -19,6 +19,7 @@ public class LightImagePickerActivity extends PageActivity implements OnImagesSe
     public final static String PARAM_TITLE = "param_title";
     public final static String PARAM_SELECTED_IMAGES_START_INDEX = "param_selected_images_start_index";
     public final static String PARAM_SELECTED_IMAGES = "param_selected_images";
+    public final static String PARAM_SHOW_SAVE_BUTTON = "param_show_save_button"; // for LightImageViewerPage only
     public final static String RESULT_SELECTED_IMAGES = "result_selected_images";
 
     public enum OpeningOption {
@@ -29,7 +30,7 @@ public class LightImagePickerActivity extends PageActivity implements OnImagesSe
     public static void show(Activity activity,
                             int requestCode,
                             OpeningOption openingOption) {
-        show(activity, requestCode, openingOption, null, null, 0);
+        show(activity, requestCode, openingOption, null, null, 0, false);
     }
 
     public static void show(Activity activity,
@@ -37,12 +38,14 @@ public class LightImagePickerActivity extends PageActivity implements OnImagesSe
                             OpeningOption openingOption,
                             String title,
                             ArrayList<String> selectedImages,
-                            int startIndex) {
+                            int startIndex,
+                            boolean showSaveButton) {
         Intent intent = new Intent(activity, LightImagePickerActivity.class);
         intent.putExtra(PARAM_OPENING_OPTION, openingOption.ordinal());
         intent.putExtra(PARAM_TITLE, title);
         intent.putExtra(PARAM_SELECTED_IMAGES, selectedImages);
         intent.putExtra(PARAM_SELECTED_IMAGES_START_INDEX, startIndex);
+        intent.putExtra(PARAM_SHOW_SAVE_BUTTON, showSaveButton);
         if (openingOption == OpeningOption.IMAGE_PICKER) {
             activity.startActivityForResult(intent, requestCode);
         } else {
@@ -73,9 +76,10 @@ public class LightImagePickerActivity extends PageActivity implements OnImagesSe
                         .setOnImagesSelectedListener(this)
                         .show(false);
             } else if (openingOption == OpeningOption.IMAGE_VIEWER.ordinal()) {
+                boolean showSaveButton = getIntent().getBooleanExtra(PARAM_SHOW_SAVE_BUTTON, false);
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
                 LightImageViewerPage
-                        .create(this, selectedImages, getIntent().getIntExtra(PARAM_SELECTED_IMAGES_START_INDEX, 0))
+                        .create(this, selectedImages, getIntent().getIntExtra(PARAM_SELECTED_IMAGES_START_INDEX, 0), showSaveButton)
                         .show(false);
             } else {
                 finish();

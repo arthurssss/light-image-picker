@@ -1,10 +1,16 @@
 package net.neevek.android.lib.lightimagepicker.page;
 
+import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.database.sqlite.SQLiteConstraintException;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.MotionEvent;
 import android.view.View;
@@ -13,6 +19,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.alexvasilkov.gestures.GestureController;
 import com.alexvasilkov.gestures.views.GestureImageView;
@@ -27,19 +34,23 @@ import net.neevek.android.lib.lightimagepicker.BuildConfig;
 import net.neevek.android.lib.lightimagepicker.LightImagePickerActivity;
 import net.neevek.android.lib.lightimagepicker.P;
 import net.neevek.android.lib.lightimagepicker.R;
+import net.neevek.android.lib.lightimagepicker.util.Async;
 import net.neevek.android.lib.lightimagepicker.util.L;
 import net.neevek.android.lib.lightimagepicker.util.ToolbarHelper;
+import net.neevek.android.lib.lightimagepicker.util.Util;
 import net.neevek.android.lib.paginize.Page;
 import net.neevek.android.lib.paginize.PageActivity;
 import net.neevek.android.lib.paginize.annotation.InjectViewByName;
 import net.neevek.android.lib.paginize.annotation.PageLayoutName;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import static net.neevek.android.lib.lightimagepicker.LightImagePickerActivity.PARAM_SELECTED_IMAGES;
 import static net.neevek.android.lib.lightimagepicker.LightImagePickerActivity.PARAM_SELECTED_IMAGES_START_INDEX;
+import static net.neevek.android.lib.lightimagepicker.LightImagePickerActivity.PARAM_SHOW_SAVE_BUTTON;
 import static net.neevek.android.lib.lightimagepicker.LightImagePickerActivity.PARAM_TITLE;
 
 /**
@@ -48,7 +59,7 @@ import static net.neevek.android.lib.lightimagepicker.LightImagePickerActivity.P
  */
 
 @PageLayoutName(P.layout.light_image_picker_page_viewer)
-public class LightImageViewerPage extends Page implements ViewPager.OnPageChangeListener {
+public class LightImageViewerPage extends Page implements ViewPager.OnPageChangeListener, View.OnClickListener {
     private final static int HIDE_BARS_ANIMATION_DURATION = 150;
     private final static int SHOW_PAGE_ANIMATION_DURATION = 200;
 
@@ -58,14 +69,21 @@ public class LightImageViewerPage extends Page implements ViewPager.OnPageChange
     private View mViewTopBar;
     @InjectViewByName(value = P.id.light_image_picker_vp_photo_pager, listenerTypes = ViewPager.OnPageChangeListener.class)
     private ViewPager mVpPhotoPager;
+    @InjectViewByName(value = P.id.light_image_picker_btn_save, listenerTypes = View.OnClickListener.class)
+    private TextView mBtnSave;
 
     private List<String> mImageUriList;
     private int mStartItemIndex;
 
-    public static LightImageViewerPage create(PageActivity pageActivity, ArrayList<String> selectedImages, int startItemIndex) {
+    public static LightImageViewerPage create(
+            PageActivity pageActivity,
+            ArrayList<String> selectedImages,
+            int startItemIndex,
+            boolean showSaveButton) {
         LightImageViewerPage viewerPage = new LightImageViewerPage(pageActivity);
         viewerPage.getBundle().putStringArrayList(LightImagePickerActivity.PARAM_SELECTED_IMAGES, selectedImages);
         viewerPage.getBundle().putInt(PARAM_SELECTED_IMAGES_START_INDEX, startItemIndex);
+        viewerPage.getBundle().putBoolean(PARAM_SHOW_SAVE_BUTTON, showSaveButton);
         return viewerPage;
     }
 
@@ -93,6 +111,8 @@ public class LightImageViewerPage extends Page implements ViewPager.OnPageChange
         mToolbar.setTitle(getBundle().getString(PARAM_TITLE));
         mImageUriList = getBundle().getStringArrayList(PARAM_SELECTED_IMAGES);
         mStartItemIndex = getBundle().getInt(PARAM_SELECTED_IMAGES_START_INDEX);
+
+        mBtnSave.setVisibility(getBundle().getBoolean(PARAM_SHOW_SAVE_BUTTON) ? View.VISIBLE : View.GONE);
 
         if (Build.VERSION.SDK_INT >= 16) {
             getContext().getWindow().getDecorView().setSystemUiVisibility(
@@ -135,6 +155,103 @@ public class LightImageViewerPage extends Page implements ViewPager.OnPageChange
     @Override
     public void onPageSelected(int position) {
         updateTitle(position + 1);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.light_image_picker_layout_preview_container) {
+            toggleTopBarAndBottomBar();
+
+        } else if (v.getId() == R.id.light_image_picker_btn_save) {
+            saveImage();
+        }
+    }
+
+    private void saveImage() {
+        if (mImageUriList.size() == 0) {
+            Util.showToast(getContext(), getString(R.string.light_image_picker_image_not_existing));
+            return;
+        }
+
+        final String itemUri = mImageUriList.get(mVpPhotoPager.getCurrentItem());
+        int lastSlashIndex = itemUri.lastIndexOf('/');
+        if (lastSlashIndex == -1) {
+            Util.showToast(getContext(), getString(R.string.light_image_picker_image_not_existing));
+            return;
+        }
+
+        try {
+            final File outputDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            final File outputFile = new File(outputDir, "lip_" + itemUri.substring(lastSlashIndex + 1));
+
+            if (outputFile.exists()) {
+                Async.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        new AlertDialog.Builder(getContext())
+                                .setTitle(R.string.light_image_picker_save_image)
+                                .setMessage(getString(R.string.light_image_picker_image_exists, outputFile.getAbsolutePath()))
+                                .setPositiveButton(getString(R.string.light_image_picker_yes), new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        doSaveImage(itemUri, outputFile);
+                                    }
+                                })
+                                .setNegativeButton(getString(R.string.light_image_picker_no), new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                    }
+                                })
+                                .show();
+                    }
+                });
+
+            } else {
+                doSaveImage(itemUri, outputFile);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Util.showToast(getContext(), getString(R.string.light_image_picker_saving_image_failed));
+        }
+    }
+
+    private void doSaveImage(final String imageUri, final File outputFile) {
+        Async.run(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Util.showToast(getContext(), getString(R.string.light_image_picker_saving));
+                    final File srcFile = Glide.with(getContext())
+                            .load(imageUri)
+                            .downloadOnly(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                            .get();
+
+                    if (srcFile == null || !srcFile.exists()) {
+                        Util.showToast(getContext(), getString(R.string.light_image_picker_saving_image_failed));
+                        return;
+                    }
+
+                    if (!Util.copyFile(srcFile, outputFile)) {
+                        Util.showToast(getContext(), getString(R.string.light_image_picker_saving_image_failed));
+                        return;
+                    }
+
+                    // save file to content provider
+                    ContentValues values = new ContentValues();
+                    values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+                    values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+                    values.put(MediaStore.MediaColumns.DATA, outputFile.getAbsolutePath());
+                    try {
+                        getContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                    } catch (SQLiteConstraintException e) {
+                        // ignore constraint exception
+                    }
+
+                    Util.showToast(getContext(), getString(R.string.light_image_picker_image_saved));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Util.showToast(getContext(), getString(R.string.light_image_picker_saving_image_failed));
+                }
+            }
+        });
     }
 
     @Override
@@ -187,7 +304,7 @@ public class LightImageViewerPage extends Page implements ViewPager.OnPageChange
         }
     }
 
-    private class PreviewImagePagerAdapter extends PagerAdapter implements GestureController.OnGestureListener, View.OnClickListener {
+    private class PreviewImagePagerAdapter extends PagerAdapter implements GestureController.OnGestureListener {
         class ViewHolder {
             public ViewGroup layoutItemContainer;
             public GestureImageView ivPreviewImage;
@@ -200,16 +317,11 @@ public class LightImageViewerPage extends Page implements ViewPager.OnPageChange
         }
 
         @Override
-        public void onClick(View v) {
-            toggleTopBarAndBottomBar();
-        }
-
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
+        public Object instantiateItem(final ViewGroup container, final int position) {
             final ViewHolder holder = new ViewHolder((ViewGroup)getContext().getLayoutInflater().inflate(R.layout.light_image_picker_preview_item, container, false));
             holder.layoutItemContainer.setTag(holder);
 
-            holder.layoutItemContainer.setOnClickListener(this);
+            holder.layoutItemContainer.setOnClickListener(LightImageViewerPage.this);
 
 //            holder.ivPreviewImage.getController().enableScrollInViewPager(mVpPhotoPager);
             holder.ivPreviewImage.getController().setOnGesturesListener(this);

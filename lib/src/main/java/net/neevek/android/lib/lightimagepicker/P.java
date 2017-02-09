@@ -5,6 +5,7 @@ package net.neevek.android.lib.lightimagepicker;
 public final class P { 
     public static final class id {
         public static final String light_image_picker_bottom_bar="light_image_picker_bottom_bar";
+        public static final String light_image_picker_btn_save="light_image_picker_btn_save";
         public static final String light_image_picker_btn_send="light_image_picker_btn_send";
         public static final String light_image_picker_cb_photo_list_item_checkbox="light_image_picker_cb_photo_list_item_checkbox";
         public static final String light_image_picker_cb_select="light_image_picker_cb_select";
@@ -12,6 +13,7 @@ public final class P {
         public static final String light_image_picker_iv_bucket_icon="light_image_picker_iv_bucket_icon";
         public static final String light_image_picker_iv_item_image="light_image_picker_iv_item_image";
         public static final String light_image_picker_iv_preview_image="light_image_picker_iv_preview_image";
+        public static final String light_image_picker_layout_preview_container="light_image_picker_layout_preview_container";
         public static final String light_image_picker_pb_preview="light_image_picker_pb_preview";
         public static final String light_image_picker_rb_bucket_checked="light_image_picker_rb_bucket_checked";
         public static final String light_image_picker_rv_bucket_list="light_image_picker_rv_bucket_list";
@@ -40,6 +42,7 @@ public final class P {
         public static final String light_image_picker_preview="light_image_picker_preview";
         public static final String light_image_picker_preview_items="light_image_picker_preview_items";
         public static final String light_image_picker_preview_selected_items="light_image_picker_preview_selected_items";
+        public static final String light_image_picker_save="light_image_picker_save";
         public static final String light_image_picker_select="light_image_picker_select";
         public static final String light_image_picker_select_item_count_limit="light_image_picker_select_item_count_limit";
         public static final String light_image_picker_send="light_image_picker_send";

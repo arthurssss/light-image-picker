@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">LightImagePicker</string>
+  <string name="light_image_picker_album">相册</string>
+  <string name="light_image_picker_item_count">(%d)</string>
+  <string name="light_image_picker_select_item_count_limit">最多只能选择 %d 张</string>
+  <string name="light_image_picker_preview">预览</string>
+  <string name="light_image_picker_preview_selected_items">预览(%d)</string>
+  <string name="light_image_picker_preview_items">预览(%1$d/%2$d)</string>
+  <string name="light_image_picker_send">发送</string>
+  <string name="light_image_picker_save">保存</string>
+  <string name="light_image_picker_send_selected_items">发送(%d)</string>
+  <string name="light_image_picker_select">选择</string>
+  <string name="light_image_picker_save_image">保存图片</string>
+  <string name="light_image_picker_saving_image_failed">保存图片失败</string>
+  <string name="light_image_picker_image_saved">保存图片成功</string>
+  <string name="light_image_picker_image_not_existing">图片不存在</string>
+  <string name="light_image_picker_image_exists">文件 [%1$s] 已经存在，确定覆盖吗？</string>
+  <string name="light_image_picker_yes">确定</string>
+  <string name="light_image_picker_no">取消</string>
+  <string name="light_image_picker_saving">正在保存...</string>
+</resources>

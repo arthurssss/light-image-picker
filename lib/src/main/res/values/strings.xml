@@ -7,6 +7,14 @@
   <string name="light_image_picker_preview_selected_items">Preview(%d)</string>
   <string name="light_image_picker_preview_items">Preview(%1$d/%2$d)</string>
   <string name="light_image_picker_send">Send</string>
+  <string name="light_image_picker_save">Save</string>
   <string name="light_image_picker_send_selected_items">Send(%d)</string>
   <string name="light_image_picker_select">Select</string>
+  <string name="light_image_picker_save_image">Save Image</string>
+  <string name="light_image_picker_saving_image_failed">Saving image failed</string>
+  <string name="light_image_picker_image_saved">Image saved</string>
+  <string name="light_image_picker_image_exists">File [%1$s] exists, overwrite it?</string>
+  <string name="light_image_picker_yes">Yes</string>
+  <string name="light_image_picker_no">No</string>
+  <string name="light_image_picker_saving">Saving...</string>
 </resources>
