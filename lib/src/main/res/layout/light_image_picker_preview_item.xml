@@ -14,7 +14,7 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   >
-  <com.alexvasilkov.gestures.views.GestureImageView
+  <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
     android:id="@+id/light_image_picker_iv_preview_image"
     android:layout_width="match_parent"
     android:layout_height="match_parent"

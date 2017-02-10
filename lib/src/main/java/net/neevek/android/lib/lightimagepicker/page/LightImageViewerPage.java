@@ -3,16 +3,15 @@ package net.neevek.android.lib.lightimagepicker.page;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.database.sqlite.SQLiteConstraintException;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -21,21 +20,18 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.alexvasilkov.gestures.GestureController;
-import com.alexvasilkov.gestures.views.GestureImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
-import net.neevek.android.lib.lightimagepicker.BuildConfig;
 import net.neevek.android.lib.lightimagepicker.LightImagePickerActivity;
 import net.neevek.android.lib.lightimagepicker.P;
 import net.neevek.android.lib.lightimagepicker.R;
 import net.neevek.android.lib.lightimagepicker.util.Async;
-import net.neevek.android.lib.lightimagepicker.util.L;
 import net.neevek.android.lib.lightimagepicker.util.ToolbarHelper;
 import net.neevek.android.lib.lightimagepicker.util.Util;
 import net.neevek.android.lib.paginize.Page;
@@ -159,7 +155,7 @@ public class LightImageViewerPage extends Page implements ViewPager.OnPageChange
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.light_image_picker_layout_preview_container) {
+        if (v.getId() == R.id.light_image_picker_iv_preview_image) {
             toggleTopBarAndBottomBar();
 
         } else if (v.getId() == R.id.light_image_picker_btn_save) {
@@ -304,14 +300,14 @@ public class LightImageViewerPage extends Page implements ViewPager.OnPageChange
         }
     }
 
-    private class PreviewImagePagerAdapter extends PagerAdapter implements GestureController.OnGestureListener {
+    private class PreviewImagePagerAdapter extends PagerAdapter {
         class ViewHolder {
             public ViewGroup layoutItemContainer;
-            public GestureImageView ivPreviewImage;
+            public SubsamplingScaleImageView ivPreviewImage;
             public ProgressBar pbPreview;
             public ViewHolder(ViewGroup layoutItemContainer) {
                 this.layoutItemContainer = layoutItemContainer;
-                ivPreviewImage = (GestureImageView) layoutItemContainer.findViewById (R.id.light_image_picker_iv_preview_image);
+                ivPreviewImage = (SubsamplingScaleImageView) layoutItemContainer.findViewById (R.id.light_image_picker_iv_preview_image);
                 pbPreview = (ProgressBar) layoutItemContainer.findViewById (R.id.light_image_picker_pb_preview);
             }
         }
@@ -321,11 +317,11 @@ public class LightImageViewerPage extends Page implements ViewPager.OnPageChange
             final ViewHolder holder = new ViewHolder((ViewGroup)getContext().getLayoutInflater().inflate(R.layout.light_image_picker_preview_item, container, false));
             holder.layoutItemContainer.setTag(holder);
 
-            holder.layoutItemContainer.setOnClickListener(LightImageViewerPage.this);
-
-//            holder.ivPreviewImage.getController().enableScrollInViewPager(mVpPhotoPager);
-            holder.ivPreviewImage.getController().setOnGesturesListener(this);
-            holder.ivPreviewImage.getController().getSettings().setMaxZoom(5);
+            holder.ivPreviewImage.setOnClickListener(LightImageViewerPage.this);
+            holder.ivPreviewImage.setMaxScale(10);
+            holder.ivPreviewImage.setDoubleTapZoomScale(10);
+            holder.ivPreviewImage.setDoubleTapZoomDuration(200);
+            holder.ivPreviewImage.setDoubleTapZoomStyle(SubsamplingScaleImageView.ZOOM_FOCUS_CENTER);
 
             String imageUri = mImageUriList.get(position);
 
@@ -333,31 +329,19 @@ public class LightImageViewerPage extends Page implements ViewPager.OnPageChange
 
             Glide.with(getContext())
                     .load(imageUri)
-                    .listener(new RequestListener<String, GlideDrawable>() {
+//                    .skipMemoryCache(true)
+                    .asBitmap()
+                    .override(getResources().getDisplayMetrics().widthPixels / 2, getResources().getDisplayMetrics().heightPixels / 2)
+                    .dontTransform()
+                    .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                    .into(new SimpleTarget<Bitmap>() {
                         @Override
-                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                             holder.ivPreviewImage.setVisibility(View.VISIBLE);
                             holder.pbPreview.setVisibility(View.GONE);
-                            return false;
+                            holder.ivPreviewImage.setImage(ImageSource.bitmap(resource));
                         }
-                    })
-                    .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                    .override(getResources().getDisplayMetrics().widthPixels/3, getResources().getDisplayMetrics().heightPixels/3)
-//                    .sizeMultiplier(0.3f)
-                    .dontTransform()
-                    .into(holder.ivPreviewImage);
-
-//                    .into(new SimpleTarget<Bitmap>() {
-//                        @Override
-//                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-//                            ivPreviewImage.setImageBitmap(resource);
-//                        }
-//                    });
+                    });
 
             return holder.layoutItemContainer;
         }
@@ -365,10 +349,6 @@ public class LightImageViewerPage extends Page implements ViewPager.OnPageChange
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
             ViewHolder holder = (ViewHolder)((View)object).getTag();
-            if (BuildConfig.DEBUG) {
-                GlideBitmapDrawable d = (GlideBitmapDrawable) holder.ivPreviewImage.getDrawable();
-                L.d(">>>>>>> remove: %dx%d", d.getIntrinsicWidth(), d.getIntrinsicHeight());
-            }
             container.removeView(holder.layoutItemContainer);
         }
 
@@ -387,23 +367,5 @@ public class LightImageViewerPage extends Page implements ViewPager.OnPageChange
 //            // see http://stackoverflow.com/a/7287121/668963
 //            return POSITION_NONE;
 //        }
-
-        @Override
-        public boolean onSingleTapUp(@NonNull MotionEvent event) {
-            return false;
-        }
-        @Override
-        public void onDown(@NonNull MotionEvent event) { }
-        @Override
-        public void onUpOrCancel(@NonNull MotionEvent event) { }
-        @Override
-        public boolean onSingleTapConfirmed(@NonNull MotionEvent event) {
-            toggleTopBarAndBottomBar();
-            return true;
-        }
-        @Override
-        public void onLongPress(@NonNull MotionEvent event) { }
-        @Override
-        public boolean onDoubleTap(@NonNull MotionEvent event) { return false; }
     }
 }

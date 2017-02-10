@@ -48,7 +48,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:25.1.0'
     compile 'net.neevek.android:paginize:0.6.13'
     compile 'com.github.bumptech.glide:glide:3.7.0'
-    compile 'com.alexvasilkov:gesture-views:2.2.0'
+    compile 'com.davemorrissey.labs:subsampling-scale-image-view:3.6.0'
 
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'

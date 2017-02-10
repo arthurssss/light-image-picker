@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.MemoryCategory;
 import com.bumptech.glide.request.target.ViewTarget;
 
 import net.neevek.android.lib.lightimagepicker.model.OnImagesSelectedListener;
@@ -57,6 +59,8 @@ public class LightImagePickerActivity extends PageActivity implements OnImagesSe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getPageManager().setDebug(BuildConfig.DEBUG);
+
+        Glide.get(this).setMemoryCategory(MemoryCategory.LOW);
 
         int openingOption = getIntent().getIntExtra(PARAM_OPENING_OPTION, -1);
         if (openingOption == -1) {
