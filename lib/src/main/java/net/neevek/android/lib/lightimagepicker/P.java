@@ -38,14 +38,22 @@ public final class P {
     }
     public static final class string {
         public static final String light_image_picker_album="light_image_picker_album";
+        public static final String light_image_picker_image_exists="light_image_picker_image_exists";
+        public static final String light_image_picker_image_not_existing="light_image_picker_image_not_existing";
+        public static final String light_image_picker_image_saved="light_image_picker_image_saved";
         public static final String light_image_picker_item_count="light_image_picker_item_count";
+        public static final String light_image_picker_no="light_image_picker_no";
         public static final String light_image_picker_preview="light_image_picker_preview";
         public static final String light_image_picker_preview_items="light_image_picker_preview_items";
         public static final String light_image_picker_preview_selected_items="light_image_picker_preview_selected_items";
         public static final String light_image_picker_save="light_image_picker_save";
+        public static final String light_image_picker_save_image="light_image_picker_save_image";
+        public static final String light_image_picker_saving="light_image_picker_saving";
+        public static final String light_image_picker_saving_image_failed="light_image_picker_saving_image_failed";
         public static final String light_image_picker_select="light_image_picker_select";
         public static final String light_image_picker_select_item_count_limit="light_image_picker_select_item_count_limit";
         public static final String light_image_picker_send="light_image_picker_send";
         public static final String light_image_picker_send_selected_items="light_image_picker_send_selected_items";
+        public static final String light_image_picker_yes="light_image_picker_yes";
     }
 }
