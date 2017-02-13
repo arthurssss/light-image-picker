@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        LightImagePickerActivity.showPicker(this, 1);
+        LightImagePickerActivity.show(this, 1, LightImagePickerActivity.OpeningOption.IMAGE_PICKER);
     }
 
     @Override
