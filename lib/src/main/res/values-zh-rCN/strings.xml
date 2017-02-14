@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">LightImagePicker</string>
+  <string name="light_image_picker_app_name">LightImagePicker</string>
   <string name="light_image_picker_album">相册</string>
   <string name="light_image_picker_item_count">(%d)</string>
   <string name="light_image_picker_select_item_count_limit">最多只能选择 %d 张</string>

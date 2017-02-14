@@ -1,5 +1,5 @@
 <resources>
-  <string name="app_name">LightImagePicker</string>
+  <string name="light_image_picker_app_name">LightImagePicker</string>
   <string name="light_image_picker_album">Album</string>
   <string name="light_image_picker_item_count">(%d)</string>
   <string name="light_image_picker_select_item_count_limit">You can select at most %d items</string>
@@ -13,6 +13,7 @@
   <string name="light_image_picker_save_image">Save Image</string>
   <string name="light_image_picker_saving_image_failed">Saving image failed</string>
   <string name="light_image_picker_image_saved">Image saved</string>
+  <string name="light_image_picker_image_not_existing">Image does not exist</string>
   <string name="light_image_picker_image_exists">File [%1$s] exists, overwrite it?</string>
   <string name="light_image_picker_yes">Yes</string>
   <string name="light_image_picker_no">No</string>
