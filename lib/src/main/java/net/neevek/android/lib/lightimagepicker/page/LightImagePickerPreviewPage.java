@@ -297,9 +297,6 @@ public class LightImagePickerPreviewPage extends Page
             container.addView(holder.layoutItemContainer);
 
             if (resource.path.toLowerCase().endsWith(".gif")) {
-                holder.ivPreviewImageWithScaling.setVisibility(View.GONE);
-                holder.ivPreviewImage.setVisibility(View.VISIBLE);
-                holder.pbPreview.setVisibility(View.GONE);
                 Glide.with(getContext())
                         .load(resource.path)
                         .asGif()
@@ -311,9 +308,7 @@ public class LightImagePickerPreviewPage extends Page
                                 holder.ivPreviewImage.setVisibility(View.VISIBLE);
                                 holder.pbPreview.setVisibility(View.GONE);
                                 holder.ivPreviewImage.setImageDrawable(resource);
-                                if (!resource.isRunning()) {
-                                    resource.start();
-                                }
+                                resource.start();
                             }
                         });
 

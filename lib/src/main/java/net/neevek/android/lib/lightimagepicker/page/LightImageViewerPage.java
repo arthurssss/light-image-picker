@@ -17,11 +17,13 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
@@ -303,11 +305,13 @@ public class LightImageViewerPage extends Page implements ViewPager.OnPageChange
     private class PreviewImagePagerAdapter extends PagerAdapter {
         class ViewHolder {
             public ViewGroup layoutItemContainer;
-            public SubsamplingScaleImageView ivPreviewImage;
+            public SubsamplingScaleImageView ivPreviewImageWithScaling;
+            public ImageView ivPreviewImage;
             public ProgressBar pbPreview;
             public ViewHolder(ViewGroup layoutItemContainer) {
                 this.layoutItemContainer = layoutItemContainer;
-                ivPreviewImage = (SubsamplingScaleImageView) layoutItemContainer.findViewById (R.id.light_image_picker_iv_preview_image_with_scaling);
+                ivPreviewImageWithScaling = (SubsamplingScaleImageView) layoutItemContainer.findViewById (R.id.light_image_picker_iv_preview_image_with_scaling);
+                ivPreviewImage = (ImageView) layoutItemContainer.findViewById (R.id.light_image_picker_iv_preview_image);
                 pbPreview = (ProgressBar) layoutItemContainer.findViewById (R.id.light_image_picker_pb_preview);
             }
         }
@@ -317,31 +321,49 @@ public class LightImageViewerPage extends Page implements ViewPager.OnPageChange
             final ViewHolder holder = new ViewHolder((ViewGroup)getContext().getLayoutInflater().inflate(R.layout.light_image_picker_preview_item, container, false));
             holder.layoutItemContainer.setTag(holder);
 
-            holder.ivPreviewImage.setOnClickListener(LightImageViewerPage.this);
-            holder.ivPreviewImage.setMaxScale(10);
-            holder.ivPreviewImage.setDoubleTapZoomScale(10);
-            holder.ivPreviewImage.setDoubleTapZoomDuration(200);
-            holder.ivPreviewImage.setDoubleTapZoomStyle(SubsamplingScaleImageView.ZOOM_FOCUS_CENTER);
-
             String imageUri = mImageUriList.get(position);
 
             container.addView(holder.layoutItemContainer);
 
-            Glide.with(getContext())
-                    .load(imageUri)
-//                    .skipMemoryCache(true)
-                    .asBitmap()
-                    .override(getResources().getDisplayMetrics().widthPixels / 2, getResources().getDisplayMetrics().heightPixels / 2)
-                    .dontTransform()
-                    .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                    .into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                            holder.ivPreviewImage.setVisibility(View.VISIBLE);
-                            holder.pbPreview.setVisibility(View.GONE);
-                            holder.ivPreviewImage.setImage(ImageSource.bitmap(resource));
-                        }
-                    });
+            if (imageUri.toLowerCase().endsWith(".gif")) {
+                Glide.with(getContext())
+                        .load(imageUri)
+                        .asGif()
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .into(new SimpleTarget<GifDrawable>() {
+                            @Override
+                            public void onResourceReady(GifDrawable resource, GlideAnimation<? super GifDrawable> glideAnimation) {
+                                holder.ivPreviewImageWithScaling.setVisibility(View.GONE);
+                                holder.ivPreviewImage.setVisibility(View.VISIBLE);
+                                holder.pbPreview.setVisibility(View.GONE);
+                                holder.ivPreviewImage.setImageDrawable(resource);
+                                resource.start();
+                            }
+                        });
+
+            } else {
+                holder.ivPreviewImageWithScaling.setOnClickListener(LightImageViewerPage.this);
+                holder.ivPreviewImageWithScaling.setMaxScale(10);
+                holder.ivPreviewImageWithScaling.setDoubleTapZoomScale(10);
+                holder.ivPreviewImageWithScaling.setDoubleTapZoomDuration(200);
+                holder.ivPreviewImageWithScaling.setDoubleTapZoomStyle(SubsamplingScaleImageView.ZOOM_FOCUS_CENTER);
+
+                Glide.with(getContext())
+                        .load(imageUri)
+                        .asBitmap()
+                        .override(getResources().getDisplayMetrics().widthPixels / 2, getResources().getDisplayMetrics().heightPixels / 2)
+                        .dontTransform()
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                holder.ivPreviewImage.setVisibility(View.GONE);
+                                holder.ivPreviewImageWithScaling.setVisibility(View.VISIBLE);
+                                holder.pbPreview.setVisibility(View.GONE);
+                                holder.ivPreviewImageWithScaling.setImage(ImageSource.bitmap(resource));
+                            }
+                        });
+            }
 
             return holder.layoutItemContainer;
         }

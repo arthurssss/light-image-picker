@@ -30,8 +30,8 @@ android {
 
     defaultConfig {
         minSdkVersion 14
-        versionCode 4
-        versionName "0.0.4"
+        versionCode 5
+        versionName "0.0.5"
         setProperty("archivesBaseName", "light-image-picker")
     }
     buildTypes {
