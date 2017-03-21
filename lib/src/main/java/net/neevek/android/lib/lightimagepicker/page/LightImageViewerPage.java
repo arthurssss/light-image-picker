@@ -155,7 +155,7 @@ public class LightImageViewerPage extends Page implements ViewPager.OnPageChange
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.light_image_picker_iv_preview_image) {
+        if (v.getId() == R.id.light_image_picker_iv_preview_image_with_scaling) {
             toggleTopBarAndBottomBar();
 
         } else if (v.getId() == R.id.light_image_picker_btn_save) {
@@ -307,7 +307,7 @@ public class LightImageViewerPage extends Page implements ViewPager.OnPageChange
             public ProgressBar pbPreview;
             public ViewHolder(ViewGroup layoutItemContainer) {
                 this.layoutItemContainer = layoutItemContainer;
-                ivPreviewImage = (SubsamplingScaleImageView) layoutItemContainer.findViewById (R.id.light_image_picker_iv_preview_image);
+                ivPreviewImage = (SubsamplingScaleImageView) layoutItemContainer.findViewById (R.id.light_image_picker_iv_preview_image_with_scaling);
                 pbPreview = (ProgressBar) layoutItemContainer.findViewById (R.id.light_image_picker_pb_preview);
             }
         }

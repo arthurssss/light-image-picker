@@ -15,6 +15,12 @@
   android:layout_height="match_parent"
   >
   <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+    android:id="@+id/light_image_picker_iv_preview_image_with_scaling"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="gone"
+    />
+  <ImageView
     android:id="@+id/light_image_picker_iv_preview_image"
     android:layout_width="match_parent"
     android:layout_height="match_parent"

@@ -14,12 +14,14 @@ import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.davemorrissey.labs.subscaleview.ImageSource;
@@ -160,7 +162,7 @@ public class LightImagePickerPreviewPage extends Page
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.light_image_picker_iv_preview_image) {
+        if (v.getId() == R.id.light_image_picker_iv_preview_image_with_scaling) {
             toggleTopBarAndBottomBar();
 
         } else if (v.getId() == R.id.light_image_picker_btn_send) {
@@ -274,11 +276,13 @@ public class LightImagePickerPreviewPage extends Page
     private class PreviewImagePagerAdapter extends PagerAdapter {
         class ViewHolder {
             public ViewGroup layoutItemContainer;
-            public SubsamplingScaleImageView ivPreviewImage;
+            public SubsamplingScaleImageView ivPreviewImageWithScaling;
+            public ImageView ivPreviewImage;
             public ProgressBar pbPreview;
             public ViewHolder(ViewGroup layoutItemContainer) {
                 this.layoutItemContainer = layoutItemContainer;
-                ivPreviewImage = (SubsamplingScaleImageView) layoutItemContainer.findViewById (R.id.light_image_picker_iv_preview_image);
+                ivPreviewImageWithScaling = (SubsamplingScaleImageView) layoutItemContainer.findViewById (R.id.light_image_picker_iv_preview_image_with_scaling);
+                ivPreviewImage = (ImageView) layoutItemContainer.findViewById (R.id.light_image_picker_iv_preview_image);
                 pbPreview = (ProgressBar) layoutItemContainer.findViewById (R.id.light_image_picker_pb_preview);
             }
         }
@@ -288,30 +292,54 @@ public class LightImagePickerPreviewPage extends Page
             final ViewHolder holder = new ViewHolder((ViewGroup)getContext().getLayoutInflater().inflate(R.layout.light_image_picker_preview_item, container, false));
             holder.layoutItemContainer.setTag(holder);
 
-            holder.ivPreviewImage.setOnClickListener(LightImagePickerPreviewPage.this);
-            holder.ivPreviewImage.setMaxScale(10);
-            holder.ivPreviewImage.setDoubleTapZoomScale(10);
-            holder.ivPreviewImage.setDoubleTapZoomDuration(200);
-            holder.ivPreviewImage.setDoubleTapZoomStyle(SubsamplingScaleImageView.ZOOM_FOCUS_CENTER);
-
             LocalMediaResource resource = mResourceList.get(position);
 
             container.addView(holder.layoutItemContainer);
 
-            Glide.with(getContext())
-                    .load(resource.path)
-                    .asBitmap()
-                    .override(getResources().getDisplayMetrics().widthPixels / 2, getResources().getDisplayMetrics().heightPixels / 2)
-                    .dontTransform()
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                            holder.ivPreviewImage.setVisibility(View.VISIBLE);
-                            holder.pbPreview.setVisibility(View.GONE);
-                            holder.ivPreviewImage.setImage(ImageSource.bitmap(resource));
-                        }
-                    });
+            if (resource.path.toLowerCase().endsWith(".gif")) {
+                holder.ivPreviewImageWithScaling.setVisibility(View.GONE);
+                holder.ivPreviewImage.setVisibility(View.VISIBLE);
+                holder.pbPreview.setVisibility(View.GONE);
+                Glide.with(getContext())
+                        .load(resource.path)
+                        .asGif()
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .into(new SimpleTarget<GifDrawable>() {
+                            @Override
+                            public void onResourceReady(GifDrawable resource, GlideAnimation<? super GifDrawable> glideAnimation) {
+                                holder.ivPreviewImageWithScaling.setVisibility(View.GONE);
+                                holder.ivPreviewImage.setVisibility(View.VISIBLE);
+                                holder.pbPreview.setVisibility(View.GONE);
+                                holder.ivPreviewImage.setImageDrawable(resource);
+                                if (!resource.isRunning()) {
+                                    resource.start();
+                                }
+                            }
+                        });
+
+            } else {
+                holder.ivPreviewImageWithScaling.setOnClickListener(LightImagePickerPreviewPage.this);
+                holder.ivPreviewImageWithScaling.setMaxScale(10);
+                holder.ivPreviewImageWithScaling.setDoubleTapZoomScale(10);
+                holder.ivPreviewImageWithScaling.setDoubleTapZoomDuration(200);
+                holder.ivPreviewImageWithScaling.setDoubleTapZoomStyle(SubsamplingScaleImageView.ZOOM_FOCUS_CENTER);
+
+                Glide.with(getContext())
+                        .load(resource.path)
+                        .asBitmap()
+                        .override(getResources().getDisplayMetrics().widthPixels / 2, getResources().getDisplayMetrics().heightPixels / 2)
+                        .dontTransform()
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                holder.ivPreviewImage.setVisibility(View.GONE);
+                                holder.ivPreviewImageWithScaling.setVisibility(View.VISIBLE);
+                                holder.pbPreview.setVisibility(View.GONE);
+                                holder.ivPreviewImageWithScaling.setImage(ImageSource.bitmap(resource));
+                            }
+                        });
+            }
 
             return holder.layoutItemContainer;
         }
